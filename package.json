@@ -1,0 +1,20 @@
+{
+  "name": "app-workspace",
+  "private": true,
+  "workspaces": [
+    "client",
+    "server"
+  ],
+  "scripts": {
+    "dev": "concurrently \"npm:dev --prefix server\" \"npm:dev --prefix client\"",
+    "build": "npm run build --prefix client && npm run build --prefix server",
+    "start": "node server/dist/index.js"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.19",
+    "@types/node": "^24.9.2",
+    "@types/react": "^19.2.2",
+    "@types/react-dom": "^19.2.2",
+    "concurrently": "^8.2.0"
+  }
+}
