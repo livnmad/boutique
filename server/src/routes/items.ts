@@ -43,4 +43,29 @@ router.post('/', async (req, res) => {
   }
 });
 
+router.put('/:id', async (req, res) => {
+  const { id } = req.params;
+  const doc = req.body;
+  try {
+    // sanitize image SVG if present
+    if (doc && typeof doc.imageSvg === 'string' && doc.imageSvg.trim()) {
+      doc.imageSvg = sanitizeSvg(doc.imageSvg);
+    }
+  } catch (err) {
+    console.warn('SVG sanitization failed', err);
+  }
+  try {
+    const r = await esClient.update({
+      index: INDEX,
+      id,
+      doc,
+      refresh: true
+    });
+    res.json({ ok: true, id: r._id });
+  } catch (err: any) {
+    console.error(err);
+    res.status(500).json({ ok: false, error: err.message || String(err) });
+  }
+});
+
 export default router;

@@ -59,7 +59,7 @@ export default function BraceletCard({ item }: { item: Item }) {
           <small>Pattern: {item.pattern || '—'}</small>
           <small>Colors: {(item.colors || []).join(', ') || '—'}</small>
         </div>
-        <div style={{marginTop:10,display:'flex',justifyContent:'space-between',alignItems:'center'}}>
+        <div test-id='Add Button' style={{marginBottom:0,display:'flex',justifyContent:'space-between',alignItems:'center'}}>
           <strong>${(item.price || 0).toFixed(2)}</strong>
           <button onClick={handleAdd} className="btn-buy">Add</button>
         </div>
