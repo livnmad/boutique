@@ -1,5 +1,6 @@
 import React from 'react';
 import CartLogoWithFirework from './components/CartLogoWithFirework';
+import type { RouteProps } from 'react-router-dom';
 import { Routes, Route, Link } from 'react-router-dom';
 import Home from './pages/Home';
 import About from './pages/About';
@@ -7,15 +8,22 @@ import Items from './pages/Items';
 import Search from './pages/Search';
 import Admin from './pages/Admin';
 import Checkout from './pages/Checkout';
+import Reviews from './pages/Reviews';
 import Logo from './components/Logo';
+import './styles/product.css';
+
+// Type assertion to fix React Router type issues
+const TypedRoute = Route as React.ComponentType<RouteProps>;
+const TypedLink = Link as React.ComponentType<{to: string; children: React.ReactNode; className?: string}>;
+const TypedRoutes = Routes as React.ComponentType<{children: React.ReactNode}>;
 export default function App() {
   return (
     <div className="app-container">
       <header className="site-header">
         <div className="nav-links">
-          <Link to="/">Home</Link>
-          <Link to="/items">Shop Bracelets</Link>
-          <Link to="/about">Our Story</Link>
+          <TypedLink to="/">Home</TypedLink>
+          <TypedLink to="/items">Shop Bracelets</TypedLink>
+          <TypedLink to="/about">Our Story</TypedLink>
         </div>
         <div className="logo-wrap">
           <Logo />
@@ -27,14 +35,15 @@ export default function App() {
       </header>
 
       <main>
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/about" element={<About />} />
-          <Route path="/items" element={<Items />} />
-          <Route path="/search" element={<Search />} />
-          <Route path="/admin" element={<Admin />} />
-          <Route path="/checkout" element={<Checkout />} />
-        </Routes>
+        <TypedRoutes>
+          <TypedRoute path="/" element={<Home />} />
+          <TypedRoute path="/about" element={<About />} />
+          <TypedRoute path="/items" element={<Items />} />
+          <TypedRoute path="/search" element={<Search />} />
+          <TypedRoute path="/admin" element={<Admin />} />
+          <TypedRoute path="/checkout" element={<Checkout />} />
+          <TypedRoute path="/reviews/:itemId" element={<Reviews />} />
+        </TypedRoutes>
       </main>
     </div>
   );

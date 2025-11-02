@@ -1,7 +1,9 @@
 import React from 'react';
 import Bracelet from './Bracelet';
 import { useCart } from '../context/CartContext';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
+
+const TypedLink = Link as React.ComponentType<{to: string; children: React.ReactNode; style?: React.CSSProperties}>;
 
 type Item = {
   id?: string;
@@ -13,6 +15,8 @@ type Item = {
   pattern?: string;
   price?: number;
   inventory?: number;
+  averageRating?: number;
+  reviewCount?: number;
 };
 
 export default function BraceletCard({ item }: { item: Item }) {
@@ -59,9 +63,38 @@ export default function BraceletCard({ item }: { item: Item }) {
           <small>Pattern: {item.pattern || '—'}</small>
           <small>Colors: {(item.colors || []).join(', ') || '—'}</small>
         </div>
-        <div test-id='Add Button' style={{marginBottom:0,display:'flex',justifyContent:'space-between',alignItems:'center'}}>
-          <strong>${(item.price || 0).toFixed(2)}</strong>
-          <button onClick={handleAdd} className="btn-buy">Add</button>
+        <div style={{display:'flex',flexDirection:'column',gap:8,marginTop:8}}>
+          <div style={{display:'flex',alignItems:'center',gap:8}}>
+            {item.averageRating ? (
+              <>
+                <div className="rating-stars">{'★'.repeat(Math.round(item.averageRating))}{'☆'.repeat(5 - Math.round(item.averageRating))}</div>
+                <small>({item.reviewCount} reviews)</small>
+              </>
+            ) : (
+              <small>No reviews yet</small>
+            )}
+            <TypedLink 
+              to={`/reviews/${item.id}`} 
+              style={{marginLeft:'auto',fontSize:'0.9em',color:'var(--primary-color)'}}
+            >
+              View Reviews
+            </TypedLink>
+          </div>
+          <div style={{display:'flex',justifyContent:'space-between',alignItems:'center'}}>
+            <div>
+              <strong>${(item.price || 0).toFixed(2)}</strong>
+              <small style={{marginLeft:8,color:item.inventory && item.inventory > 0 ? '#2ecc71' : '#e74c3c'}}>
+                {item.inventory && item.inventory > 0 ? `${item.inventory} in stock` : 'Out of stock'}
+              </small>
+            </div>
+            <button 
+              onClick={handleAdd} 
+              className="btn-buy" 
+              disabled={!item.inventory || item.inventory <= 0}
+            >
+              Add
+            </button>
+          </div>
         </div>
       </div>
     </div>

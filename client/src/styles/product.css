@@ -1,0 +1,26 @@
+/* Rating stars styling */
+.rating-stars {
+  color: #f1c40f;
+  letter-spacing: 2px;
+  font-size: 1.1em;
+}
+
+.btn-buy:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background: #ccc;
+}
+
+/* Item availability status */
+.stock-status {
+  font-size: 0.85em;
+  margin-left: 8px;
+}
+
+.stock-status.in-stock {
+  color: #2ecc71;
+}
+
+.stock-status.out-of-stock {
+  color: #e74c3c;
+}
