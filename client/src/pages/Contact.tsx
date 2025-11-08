@@ -6,11 +6,24 @@ export default function Contact() {
   const [formData, setFormData] = useState({
     firstName: '',
     email: '',
-    comments: ''
+    comments: '',
+    website: '' // honeypot field
   });
+  const [captcha, setCaptcha] = useState({ num1: 0, num2: 0, answer: '' });
   const [status, setStatus] = useState('');
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Generate CAPTCHA on component mount
+  React.useEffect(() => {
+    generateCaptcha();
+  }, []);
+
+  function generateCaptcha() {
+    const num1 = Math.floor(Math.random() * 10) + 1;
+    const num2 = Math.floor(Math.random() * 10) + 1;
+    setCaptcha({ num1, num2, answer: '' });
+  }
 
   function handleChange(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) {
     const { name, value } = e.target;
@@ -26,6 +39,15 @@ export default function Contact() {
     setError('');
     setIsSubmitting(true);
 
+    // Validate CAPTCHA
+    const correctAnswer = captcha.num1 + captcha.num2;
+    if (parseInt(captcha.answer) !== correctAnswer) {
+      setError('Incorrect CAPTCHA answer. Please try again.');
+      setIsSubmitting(false);
+      generateCaptcha();
+      return;
+    }
+
     try {
       const response = await axios.post('/api/contact', formData);
       
@@ -34,11 +56,14 @@ export default function Contact() {
         setFormData({
           firstName: '',
           email: '',
-          comments: ''
+          comments: '',
+          website: ''
         });
+        generateCaptcha();
       }
     } catch (err: any) {
       setError(err.response?.data?.error || 'Failed to send message. Please try again.');
+      generateCaptcha();
     } finally {
       setIsSubmitting(false);
     }
@@ -96,6 +121,39 @@ export default function Contact() {
               required
               disabled={isSubmitting}
             />
+          </div>
+
+          {/* Honeypot field - hidden from users */}
+          <div className="honeypot">
+            <label htmlFor="website">Website</label>
+            <input
+              type="text"
+              id="website"
+              name="website"
+              value={formData.website}
+              onChange={handleChange}
+              tabIndex={-1}
+              autoComplete="off"
+            />
+          </div>
+
+          {/* CAPTCHA */}
+          <div className="form-group captcha-group">
+            <label htmlFor="captcha">
+              Verify you're human <span className="required">*</span>
+            </label>
+            <div className="captcha-question">
+              <span>What is {captcha.num1} + {captcha.num2}?</span>
+              <input
+                type="number"
+                id="captcha"
+                value={captcha.answer}
+                onChange={(e) => setCaptcha({ ...captcha, answer: e.target.value })}
+                required
+                disabled={isSubmitting}
+                className="captcha-input"
+              />
+            </div>
           </div>
 
           {error && <div className="error-message">{error}</div>}

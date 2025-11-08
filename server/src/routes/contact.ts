@@ -38,7 +38,14 @@ function isValidEmail(email: string): boolean {
 
 router.post('/', async (req, res) => {
   try {
-    const { firstName, email, comments } = req.body;
+    const { firstName, email, comments, website } = req.body;
+
+    // Honeypot check - if website field is filled, it's likely a bot
+    if (website && website.trim() !== '') {
+      // Return success to fool the bot, but don't actually send email
+      console.log('Honeypot triggered - potential bot submission blocked');
+      return res.json({ ok: true, message: 'Message sent successfully' });
+    }
 
     // Validate required fields
     if (!firstName || !email || !comments) {

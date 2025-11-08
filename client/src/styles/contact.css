@@ -91,3 +91,40 @@
   opacity: 0.6;
   cursor: not-allowed;
 }
+
+/* Honeypot field - hidden from real users */
+.honeypot {
+  position: absolute;
+  left: -9999px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+
+/* CAPTCHA styling */
+.captcha-group {
+  background: #f9f9f9;
+  padding: 16px;
+  border-radius: 8px;
+  border: 1px solid #e5e5e5;
+}
+
+.captcha-question {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.captcha-question span {
+  font-weight: 600;
+  color: var(--muted);
+}
+
+.captcha-input {
+  width: 80px !important;
+  padding: 8px !important;
+  text-align: center;
+  font-size: 16px;
+  font-weight: 600;
+}
