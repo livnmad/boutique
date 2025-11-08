@@ -11,6 +11,7 @@ import Checkout from './pages/Checkout';
 import Reviews from './pages/Reviews';
 import Contact from './pages/Contact';
 import Logo from './components/Logo';
+import Footer from './components/Footer';
 import './styles/product.css';
 
 // Type assertion to fix React Router type issues
@@ -48,6 +49,8 @@ export default function App() {
           <TypedRoute path="/contact" element={<Contact />} />
         </TypedRoutes>
       </main>
+
+      <Footer />
     </div>
   );
 }
