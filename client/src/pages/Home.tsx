@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import Bracelet from '../components/Bracelet';
+import beadFactsData from '../data/beadFacts.json';
 
 interface Review {
   id: string;
@@ -10,12 +11,26 @@ interface Review {
   date: string;
 }
 
+interface BeadFact {
+  id: number;
+  fact: string;
+  emoji: string;
+}
+
 export default function Home() {
   const [reviews, setReviews] = useState<Review[]>([]);
+  const [beadFacts, setBeadFacts] = useState<BeadFact[]>([]);
 
   useEffect(() => {
     loadRandomReviews();
+    loadRandomFacts();
   }, []);
+
+  function loadRandomFacts() {
+    // Get 3 random facts from the JSON file
+    const shuffled = [...beadFactsData].sort(() => 0.5 - Math.random());
+    setBeadFacts(shuffled.slice(0, 3));
+  }
 
   async function loadRandomReviews() {
     try {
@@ -52,6 +67,18 @@ export default function Home() {
           <h1 className="hero-title">Cute, Custom, and Crafted with Care.</h1>
           <p className="hero-sub">Hi — I'm Olivia. I'm 11 years old and I love making things, especially bracelets. My family just moved for my dad's work, so I've been spending my time crafting colorful bracelets for other people to enjoy. I make all kinds — custom sizes and patterns are totally welcome!</p>
           <a className="cta" href="/items">Shop Now</a>
+        </div>
+      </section>
+
+      <section className="fun-facts-section">
+        <h2 className="section-title">Fun Bead Facts! 🌈</h2>
+        <div className="facts-grid">
+          {beadFacts.map((fact) => (
+            <div key={fact.id} className="fact-card">
+              <div className="fact-emoji">{fact.emoji}</div>
+              <p className="fact-text">{fact.fact}</p>
+            </div>
+          ))}
         </div>
       </section>
 
