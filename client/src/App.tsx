@@ -9,6 +9,7 @@ import Search from './pages/Search';
 import Admin from './pages/Admin';
 import Checkout from './pages/Checkout';
 import Reviews from './pages/Reviews';
+import Contact from './pages/Contact';
 import Logo from './components/Logo';
 import './styles/product.css';
 
@@ -24,6 +25,7 @@ export default function App() {
           <TypedLink to="/">Home</TypedLink>
           <TypedLink to="/items">Shop Bracelets</TypedLink>
           <TypedLink to="/about">Our Story</TypedLink>
+          <TypedLink to="/contact">Contact</TypedLink>
         </div>
         <div className="logo-wrap">
           <Logo />
@@ -43,6 +45,7 @@ export default function App() {
           <TypedRoute path="/admin" element={<Admin />} />
           <TypedRoute path="/checkout" element={<Checkout />} />
           <TypedRoute path="/reviews/:itemId" element={<Reviews />} />
+          <TypedRoute path="/contact" element={<Contact />} />
         </TypedRoutes>
       </main>
     </div>
