@@ -16,6 +16,16 @@ interface Item {
   createdAt: string;
 }
 
+interface Order {
+  id: string;
+  items: Array<{ id: string; qty: number; title?: string; price?: number }>;
+  buyer: { name: string; email: string };
+  shipped: boolean;
+  shippedAt: string | null;
+  createdAt: string;
+  total: number;
+}
+
 export default function Admin() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [username, setUsername] = useState('');
@@ -23,7 +33,9 @@ export default function Admin() {
   const [loginError, setLoginError] = useState('');
   const [isBlocked, setIsBlocked] = useState(false);
   
+  const [view, setView] = useState<'dashboard' | 'inventory'>('dashboard');
   const [items, setItems] = useState<Item[]>([]);
+  const [orders, setOrders] = useState<Order[]>([]);
   const [editingItem, setEditingItem] = useState<string | null>(null);
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
@@ -40,6 +52,7 @@ export default function Admin() {
   useEffect(() => {
     if (isAuthenticated) {
       loadItems();
+      loadOrders();
     }
   }, [isAuthenticated]);
 
@@ -129,6 +142,30 @@ export default function Admin() {
     }
   }
 
+  async function loadOrders() {
+    try {
+      const response = await axios.get('/api/orders');
+      if (response.data.ok) {
+        // Enrich orders with item details
+        const enrichedOrders = response.data.orders.map((order: Order) => {
+          const enrichedItems = order.items.map(orderItem => {
+            const item = items.find(i => i.id === orderItem.id);
+            return {
+              ...orderItem,
+              title: item?.title || 'Unknown Item',
+              price: item?.price || 0
+            };
+          });
+          const total = enrichedItems.reduce((sum, item) => sum + (item.price || 0) * item.qty, 0);
+          return { ...order, items: enrichedItems, total };
+        });
+        setOrders(enrichedOrders);
+      }
+    } catch (err) {
+      console.error('Failed to load orders:', err);
+    }
+  }
+
   async function handleDelete(id: string) {
     if (!confirm('Are you sure you want to delete this item?')) return;
     
@@ -142,6 +179,15 @@ export default function Admin() {
     } catch (err: any) {
       console.error('Failed to delete item:', err);
       setStatus('Error deleting item');
+    }
+  }
+
+  async function toggleShipped(orderId: string, currentStatus: boolean) {
+    try {
+      await axios.put(`/api/orders/${orderId}`, { shipped: !currentStatus });
+      await loadOrders();
+    } catch (err) {
+      console.error('Failed to update order status:', err);
     }
   }
 
@@ -163,7 +209,7 @@ export default function Admin() {
       reader.readAsDataURL(file);
     });
 
-    // create an SVG that embeds the raster image and scales to 300x300
+    // create an SVG that embeds the raster image and scales to 600x600
     const svg = `<?xml version="1.0" encoding="UTF-8"?>\n<svg xmlns='http://www.w3.org/2000/svg' width='600' height='600' viewBox='0 0 600 600'>\n  <rect width='100%' height='100%' fill='none'/>\n  <image href='${dataUrl}' x='0' y='0' width='100%' height='100%' preserveAspectRatio='xMidYMid meet'/></svg>`;
     setImageSvg(svg);
   }
@@ -194,7 +240,6 @@ export default function Admin() {
         setStatus('Saved');
       }
 
-      // Refresh the items list
       await loadItems();
       
       // reset form
@@ -213,146 +258,299 @@ export default function Admin() {
   }
 
   return (
-    <div className="page">
-      <h2 className="section-title">Admin Dashboard</h2>
-      
-      <div className="admin-sections">
-        <div className="existing-items">
-          <h3>Existing Items</h3>
-          <div className="items-list">
-            {items.map(item => (
-              <div key={item.id} className="item-row">
-                <div className="item-info">
-                  <strong>{item.title}</strong>
-                  <span>${item.price}</span>
-                  <span>Stock: {item.inventory || 0}</span>
-                </div>
-                <div style={{display: 'flex', gap: '8px'}}>
-                  <button 
-                    onClick={() => {
-                      setEditingItem(item.id);
-                      setTitle(item.title);
-                      setDescription(item.description);
-                      setCategory(item.category);
-                      setSize(item.size);
-                      setColors(item.colors.join(', '));
-                      setPattern(item.pattern);
-                      setPrice(item.price);
-                      setInventory(item.inventory || 0);
-                      setImageSvg(item.imageSvg);
-                    }}
-                    className="edit-button"
-                  >
-                    Edit
-                  </button>
-                  <button 
-                    onClick={() => handleDelete(item.id)}
-                    className="delete-button"
-                    type="button"
-                  >
-                    Delete
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
+    <div className="page admin-page">
+      <div className="admin-header">
+        <h2 className="admin-title">Admin Dashboard</h2>
+        <div className="admin-nav">
+          <button 
+            className={`admin-nav-btn ${view === 'dashboard' ? 'active' : ''}`}
+            onClick={() => setView('dashboard')}
+          >
+            📊 Orders
+          </button>
+          <button 
+            className={`admin-nav-btn ${view === 'inventory' ? 'active' : ''}`}
+            onClick={() => setView('inventory')}
+          >
+            📦 Inventory
+          </button>
         </div>
+      </div>
 
-        <div className="item-form">
-          <h3>{editingItem ? 'Edit Item' : 'Add New Item'}</h3>
-          <form className="admin-form" onSubmit={handleSubmit}>
-            <div className="form-row">
-              <label>Title</label>
-              <input value={title} onChange={e => setTitle(e.target.value)} required />
+      {view === 'dashboard' && (
+        <div className="dashboard-view">
+          <div className="dashboard-stats">
+            <div className="stat-card">
+              <div className="stat-value">{orders.length}</div>
+              <div className="stat-label">Total Orders</div>
             </div>
-
-            <div className="form-row">
-              <label>Description</label>
-              <textarea value={description} onChange={e => setDescription(e.target.value)} rows={3} />
+            <div className="stat-card">
+              <div className="stat-value">{orders.filter(o => o.shipped).length}</div>
+              <div className="stat-label">Shipped</div>
             </div>
-
-            <div className="form-grid">
-              <div className="form-row">
-                <label>Category</label>
-                <input value={category} onChange={e => setCategory(e.target.value)} />
-              </div>
-
-              <div className="form-row">
-                <label>Size</label>
-                <select value={size} onChange={e => setSize(e.target.value)}>
-                  <option>small</option>
-                  <option>medium</option>
-                  <option>large</option>
-                  <option>custom</option>
-                </select>
-              </div>
-
-              <div className="form-row">
-                <label>Colors (comma separated)</label>
-                <input value={colors} onChange={e => setColors(e.target.value)} placeholder="gold, cream" />
-              </div>
-
-              <div className="form-row">
-                <label>Pattern</label>
-                <input value={pattern} onChange={e => setPattern(e.target.value)} />
-              </div>
-
-              <div className="form-row">
-                <label>Price (USD)</label>
-                <input type="number" step="0.01" value={price as any} onChange={e => setPrice(e.target.value === '' ? '' : Number(e.target.value))} />
-              </div>
-
-              <div className="form-row">
-                <label>Inventory</label>
-                <input 
-                  type="number" 
-                  min="0" 
-                  value={inventory} 
-                  onChange={e => setInventory(Number(e.target.value))} 
-                />
-              </div>
+            <div className="stat-card">
+              <div className="stat-value">{orders.filter(o => !o.shipped).length}</div>
+              <div className="stat-label">Pending</div>
             </div>
+          </div>
 
-            <div className="form-row">
-              <label>Upload image (SVG or raster)</label>
-              <input ref={fileRef} type="file" accept="image/*" onChange={e => handleFile(e.target.files?.[0])} />
-            </div>
-
-            <div style={{display:'flex',gap:12,alignItems:'center',marginTop:8}}>
-              <button type="submit" className="cta">{editingItem ? 'Update Item' : 'Save Item'}</button>
-              {editingItem && (
-                <button 
-                  type="button" 
-                  onClick={() => {
-                    setEditingItem(null);
-                    setTitle('');
-                    setDescription('');
-                    setPattern('');
-                    setPrice('');
-                    setColors('');
-                    setImageSvg(null);
-                    setInventory(0);
-                    if (fileRef.current) fileRef.current.value = '';
-                  }}
-                  className="secondary"
-                >
-                  Cancel Edit
-                </button>
-              )}
-              <div style={{color:'#666'}}>{status}</div>
-            </div>
-          </form>
-
-          <div style={{marginTop:20}}>
-            <h3>Preview</h3>
-            {imageSvg ? (
-              <div className="svg-preview" dangerouslySetInnerHTML={{ __html: imageSvg }} />
+          <div className="orders-section">
+            <h3>Recent Orders</h3>
+            {orders.length === 0 ? (
+              <div className="empty-state">No orders yet</div>
             ) : (
-              <p>No image uploaded yet.</p>
+              <div className="orders-grid">
+                {orders.map(order => (
+                  <div key={order.id} className={`order-card ${order.shipped ? 'shipped' : 'pending'}`}>
+                    <div className="order-header">
+                      <div>
+                        <div className="order-id">Order #{order.id.slice(0, 8)}</div>
+                        <div className="order-date">
+                          {new Date(order.createdAt).toLocaleDateString('en-US', {
+                            month: 'short',
+                            day: 'numeric',
+                            year: 'numeric',
+                            hour: '2-digit',
+                            minute: '2-digit'
+                          })}
+                        </div>
+                      </div>
+                      <div className={`order-status ${order.shipped ? 'shipped' : 'pending'}`}>
+                        {order.shipped ? '✓ Shipped' : '○ Pending'}
+                      </div>
+                    </div>
+                    
+                    <div className="order-buyer">
+                      <strong>{order.buyer?.name || 'Anonymous'}</strong>
+                      <span>{order.buyer?.email || 'No email'}</span>
+                    </div>
+
+                    <div className="order-items">
+                      {order.items.map((item, idx) => (
+                        <div key={idx} className="order-item">
+                          <span>{item.title || 'Unknown'}</span>
+                          <span className="item-qty">×{item.qty}</span>
+                          <span className="item-price">${((item.price || 0) * item.qty).toFixed(2)}</span>
+                        </div>
+                      ))}
+                    </div>
+
+                    <div className="order-footer">
+                      <div className="order-total">Total: ${order.total.toFixed(2)}</div>
+                      <button 
+                        className={`ship-btn ${order.shipped ? 'unship' : 'ship'}`}
+                        onClick={() => toggleShipped(order.id, order.shipped)}
+                      >
+                        {order.shipped ? 'Mark Unshipped' : 'Mark Shipped'}
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
             )}
           </div>
         </div>
-      </div>
+      )}
+
+      {view === 'inventory' && (
+        <div className="inventory-view">
+          <div className="inventory-layout">
+            <div className="existing-items-section">
+              <h3>Current Inventory</h3>
+              <div className="items-list">
+                {items.length === 0 ? (
+                  <div className="empty-state">No items yet</div>
+                ) : (
+                  items.map(item => (
+                    <div key={item.id} className="item-row">
+                      <div className="item-info">
+                        <strong>{item.title}</strong>
+                        <span className="item-price">${item.price.toFixed(2)}</span>
+                        <span className={`item-stock ${item.inventory === 0 ? 'out-of-stock' : ''}`}>
+                          Stock: {item.inventory || 0}
+                        </span>
+                      </div>
+                      <div className="item-actions">
+                        <button 
+                          onClick={() => {
+                            setEditingItem(item.id);
+                            setTitle(item.title);
+                            setDescription(item.description);
+                            setCategory(item.category);
+                            setSize(item.size);
+                            setColors(item.colors.join(', '));
+                            setPattern(item.pattern);
+                            setPrice(item.price);
+                            setInventory(item.inventory || 0);
+                            setImageSvg(item.imageSvg);
+                          }}
+                          className="edit-button"
+                        >
+                          ✏️ Edit
+                        </button>
+                        <button 
+                          onClick={() => handleDelete(item.id)}
+                          className="delete-button"
+                          type="button"
+                        >
+                          🗑️ Delete
+                        </button>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
+
+            <div className="item-form-section">
+              <h3>{editingItem ? 'Edit Item' : 'Add New Item'}</h3>
+              <form className="item-form" onSubmit={handleSubmit}>
+                <div className="form-field">
+                  <label htmlFor="title">Title</label>
+                  <input 
+                    id="title"
+                    type="text"
+                    value={title} 
+                    onChange={e => setTitle(e.target.value)} 
+                    placeholder="Rainbow Smile Bracelet"
+                    required 
+                  />
+                </div>
+
+                <div className="form-field">
+                  <label htmlFor="description">Description</label>
+                  <textarea 
+                    id="description"
+                    value={description} 
+                    onChange={e => setDescription(e.target.value)} 
+                    placeholder="Beautiful handmade bracelet..."
+                    rows={3} 
+                  />
+                </div>
+
+                <div className="form-grid-2">
+                  <div className="form-field">
+                    <label htmlFor="category">Category</label>
+                    <input 
+                      id="category"
+                      type="text"
+                      value={category} 
+                      onChange={e => setCategory(e.target.value)} 
+                    />
+                  </div>
+
+                  <div className="form-field">
+                    <label htmlFor="size">Size</label>
+                    <select id="size" value={size} onChange={e => setSize(e.target.value)}>
+                      <option value="small">Small</option>
+                      <option value="medium">Medium</option>
+                      <option value="large">Large</option>
+                      <option value="custom">Custom</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div className="form-grid-2">
+                  <div className="form-field">
+                    <label htmlFor="colors">Colors (comma separated)</label>
+                    <input 
+                      id="colors"
+                      type="text"
+                      value={colors} 
+                      onChange={e => setColors(e.target.value)} 
+                      placeholder="gold, cream, pink"
+                    />
+                  </div>
+
+                  <div className="form-field">
+                    <label htmlFor="pattern">Pattern</label>
+                    <input 
+                      id="pattern"
+                      type="text"
+                      value={pattern} 
+                      onChange={e => setPattern(e.target.value)} 
+                      placeholder="rainbow, wave, etc"
+                    />
+                  </div>
+                </div>
+
+                <div className="form-grid-2">
+                  <div className="form-field">
+                    <label htmlFor="price">Price (USD)</label>
+                    <input 
+                      id="price"
+                      type="number" 
+                      step="0.01" 
+                      value={price as any} 
+                      onChange={e => setPrice(e.target.value === '' ? '' : Number(e.target.value))} 
+                      placeholder="9.99"
+                    />
+                  </div>
+
+                  <div className="form-field">
+                    <label htmlFor="inventory">Inventory</label>
+                    <input 
+                      id="inventory"
+                      type="number" 
+                      min="0" 
+                      value={inventory} 
+                      onChange={e => setInventory(Number(e.target.value))} 
+                      placeholder="10"
+                    />
+                  </div>
+                </div>
+
+                <div className="form-field">
+                  <label htmlFor="image">Upload Image</label>
+                  <input 
+                    id="image"
+                    ref={fileRef} 
+                    type="file" 
+                    accept="image/*" 
+                    onChange={e => handleFile(e.target.files?.[0])} 
+                    className="file-input"
+                  />
+                  <div className="file-help">Accepts SVG, PNG, or JPG</div>
+                </div>
+
+                {imageSvg && (
+                  <div className="image-preview">
+                    <label>Preview</label>
+                    <div className="svg-preview" dangerouslySetInnerHTML={{ __html: imageSvg }} />
+                  </div>
+                )}
+
+                <div className="form-actions">
+                  <button type="submit" className="submit-btn">
+                    {editingItem ? '💾 Update Item' : '➕ Add Item'}
+                  </button>
+                  {editingItem && (
+                    <button 
+                      type="button" 
+                      onClick={() => {
+                        setEditingItem(null);
+                        setTitle('');
+                        setDescription('');
+                        setPattern('');
+                        setPrice('');
+                        setColors('');
+                        setImageSvg(null);
+                        setInventory(0);
+                        if (fileRef.current) fileRef.current.value = '';
+                      }}
+                      className="cancel-btn"
+                    >
+                      ✖ Cancel
+                    </button>
+                  )}
+                </div>
+
+                {status && <div className="form-status">{status}</div>}
+              </form>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

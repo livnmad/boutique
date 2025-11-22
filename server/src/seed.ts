@@ -1,7 +1,8 @@
 import { esClient } from './elastic';
 
 async function run() {
-  const index = 'items';
+  const itemsIndex = 'items';
+  const ordersIndex = 'orders';
 
   // wait for ES to be reachable
   async function waitForEs(attempts = 20, delayMs = 1000) {
@@ -19,13 +20,14 @@ async function run() {
 
   await waitForEs();
 
-  const existsResp = await esClient.indices.exists({ index });
+  // Create items index
+  const existsResp = await esClient.indices.exists({ index: itemsIndex });
   const exists = typeof existsResp === 'boolean' ? existsResp : (existsResp && (existsResp as any).body === true);
 
   if (!exists) {
     // create index with mappings suitable for bracelets
     await esClient.indices.create({
-      index,
+      index: itemsIndex,
       body: {
         mappings: {
           properties: {
@@ -45,9 +47,34 @@ async function run() {
         }
       }
     });
-    console.log('Created index:', index);
+    console.log('Created index:', itemsIndex);
   } else {
-    console.log('Index already exists:', index);
+    console.log('Index already exists:', itemsIndex);
+  }
+
+  // Create orders index
+  const ordersExistsResp = await esClient.indices.exists({ index: ordersIndex });
+  const ordersExists = typeof ordersExistsResp === 'boolean' ? ordersExistsResp : (ordersExistsResp && (ordersExistsResp as any).body === true);
+
+  if (!ordersExists) {
+    await esClient.indices.create({
+      index: ordersIndex,
+      body: {
+        mappings: {
+          properties: {
+            items: { type: 'object', enabled: false },
+            buyer: { type: 'object', enabled: false },
+            shipped: { type: 'boolean' },
+            shippedAt: { type: 'date' },
+            createdAt: { type: 'date' },
+            total: { type: 'float' }
+          }
+        }
+      }
+    });
+    console.log('Created index:', ordersIndex);
+  } else {
+    console.log('Index already exists:', ordersIndex);
   }
 
   const sample = [
@@ -63,9 +90,9 @@ async function run() {
     // attach a small placeholder SVG for each sample item
     const placeholder = `<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200"><rect width="100%" height="100%" fill="#fff6f2"/><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" fill="#d95b6b">${doc.title.replace(/'/g,'')}</text></svg>`;
     (doc as any).imageSvg = placeholder;
-    await esClient.index({ index, document: doc });
+    await esClient.index({ index: itemsIndex, document: doc });
   }
-  await esClient.indices.refresh({ index });
+  await esClient.indices.refresh({ index: itemsIndex });
   console.log('Seeded sample bracelet items');
 }
 
