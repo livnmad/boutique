@@ -1,5 +1,5 @@
 :root{
-  --bg: #e0d5f0;
+  --bg: #E5E2FE;
   --rose: #c34fa8;
   --muted: #3d2d52;
   --card: #d4c0e8;
@@ -17,10 +17,16 @@ body{
 }
 a{color:inherit;text-decoration:none}
 
-.app-container{max-width:1100px;margin:0 auto;padding:16px}
-.site-header{display:flex;align-items:center;justify-content:space-between;padding:6px 0}
-.nav-links{display:flex;gap:16px;font-weight:600}
-.logo-wrap{flex:1;text-align:center}
+.app-container{max-width:1100px;margin:0 auto;padding:8px}
+.site-header{display:flex;flex-direction:column;gap:4px;padding:0}
+.header-top{width:100%;display:flex;justify-content:space-between;align-items:center;padding:4px 0}
+.header-bottom{width:100%;display:flex;justify-content:flex-start;padding:4px 0}
+.logo-left{flex-shrink:0}
+.cart-right{flex-shrink:0}
+.nav-links{display:flex;gap:6px;font-weight:600}
+.nav-link{display:flex;align-items:center;gap:5px;padding:6px 12px;border-radius:20px;transition:all 0.3s ease;background:rgba(255,255,255,0.5);text-decoration:none;font-size:14px}
+.nav-link:hover{background:var(--card);transform:translateY(-2px);box-shadow:0 4px 8px rgba(0,0,0,0.1)}
+.nav-icon{font-size:16px;line-height:1}
 
 .hero{display:grid;grid-template-columns:1fr 320px;gap:20px;align-items:start;margin-top:12px}
 .hero-left{background:linear-gradient(180deg, rgba(255,255,255,0.6), transparent);padding:20px;border-radius:14px}

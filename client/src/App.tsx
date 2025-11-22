@@ -22,18 +22,33 @@ export default function App() {
   return (
     <div className="app-container">
       <header className="site-header">
-        <div className="nav-links">
-          <TypedLink to="/">Home</TypedLink>
-          <TypedLink to="/items">Shop Bracelets</TypedLink>
-          <TypedLink to="/about">Our Story</TypedLink>
-          <TypedLink to="/contact">Contact</TypedLink>
+        <div className="header-top">
+          <div className="logo-left">
+            <Logo />
+          </div>
+          <div className="cart-right">
+            <CartLogoWithFirework />
+          </div>
         </div>
-        <div className="logo-wrap">
-          <Logo />
-        </div>
-        <div style={{width:120}} />
-        <div style={{marginLeft:12, position: 'relative'}}>
-          <CartLogoWithFirework />
+        <div className="header-bottom">
+          <div className="nav-links">
+            <TypedLink to="/" className="nav-link">
+              <span className="nav-icon">🏠</span>
+              <span>Home</span>
+            </TypedLink>
+            <TypedLink to="/items" className="nav-link">
+              <span className="nav-icon">✨</span>
+              <span>Shop Bracelets</span>
+            </TypedLink>
+            <TypedLink to="/about" className="nav-link">
+              <span className="nav-icon">💜</span>
+              <span>Our Story</span>
+            </TypedLink>
+            <TypedLink to="/contact" className="nav-link">
+              <span className="nav-icon">💌</span>
+              <span>Contact</span>
+            </TypedLink>
+          </div>
         </div>
       </header>
 
