@@ -53,8 +53,9 @@ router.post('/', async (req, res) => {
       doc.imageSvg = sanitizeSvg(doc.imageSvg);
     }
     
-    // Initialize reviews array and set creation date
+    // Initialize reviews array, averageRating, and set creation date
     doc.reviews = [];
+    doc.averageRating = 0;
     doc.createdAt = new Date().toISOString();
     
   } catch (err) {

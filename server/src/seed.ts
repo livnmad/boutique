@@ -38,6 +38,8 @@ async function run() {
             imageSvg: { type: 'text' },
             inventory: { type: 'integer' },
             price: { type: 'float' },
+            averageRating: { type: 'float' },
+            reviews: { type: 'object', enabled: false },
             createdAt: { type: 'date' }
           }
         }
@@ -49,12 +51,12 @@ async function run() {
   }
 
   const sample = [
-  { title: 'Rainbow Smile Bracelet', description: 'Bright multicolor beads with a smile charm', category: 'bracelet', size: 'small', colors: ['rainbow'], pattern: 'smile', price: 8.99, inventory: 12, createdAt: new Date() },
-  { title: 'Pastel Dreams Bracelet', description: 'Soft pastel beads for a gentle look', category: 'bracelet', size: 'medium', colors: ['pastel'], pattern: 'pastel', price: 10.5, inventory: 8, createdAt: new Date() },
-  { title: 'Ocean Wave Bracelet', description: 'Blue and teal beads inspired by the sea', category: 'bracelet', size: 'large', colors: ['blue','teal'], pattern: 'wave', price: 12.0, inventory: 6, createdAt: new Date() },
-  { title: 'Party Pop Bracelet', description: 'Colorful fun beads for celebrations', category: 'bracelet', size: 'medium', colors: ['multicolor'], pattern: 'party', price: 9.5, inventory: 10, createdAt: new Date() },
-  { title: 'Custom Name Bracelet', description: 'Personalized with letters — add a name in the order', category: 'bracelet', size: 'custom', colors: ['any'], pattern: 'custom', price: 14.0, inventory: 4, createdAt: new Date() },
-  { title: 'Gold Accent Bracelet', description: 'Classic beads with gold-accent spacers', category: 'bracelet', size: 'small', colors: ['gold','cream'], pattern: 'classic', price: 15.0, inventory: 5, createdAt: new Date() }
+  { title: 'Rainbow Smile Bracelet', description: 'Bright multicolor beads with a smile charm', category: 'bracelet', size: 'small', colors: ['rainbow'], pattern: 'smile', price: 8.99, inventory: 12, averageRating: 0, reviews: [], createdAt: new Date() },
+  { title: 'Pastel Dreams Bracelet', description: 'Soft pastel beads for a gentle look', category: 'bracelet', size: 'medium', colors: ['pastel'], pattern: 'pastel', price: 10.5, inventory: 8, averageRating: 0, reviews: [], createdAt: new Date() },
+  { title: 'Ocean Wave Bracelet', description: 'Blue and teal beads inspired by the sea', category: 'bracelet', size: 'large', colors: ['blue','teal'], pattern: 'wave', price: 12.0, inventory: 6, averageRating: 0, reviews: [], createdAt: new Date() },
+  { title: 'Party Pop Bracelet', description: 'Colorful fun beads for celebrations', category: 'bracelet', size: 'medium', colors: ['multicolor'], pattern: 'party', price: 9.5, inventory: 10, averageRating: 0, reviews: [], createdAt: new Date() },
+  { title: 'Custom Name Bracelet', description: 'Personalized with letters — add a name in the order', category: 'bracelet', size: 'custom', colors: ['any'], pattern: 'custom', price: 14.0, inventory: 4, averageRating: 0, reviews: [], createdAt: new Date() },
+  { title: 'Gold Accent Bracelet', description: 'Classic beads with gold-accent spacers', category: 'bracelet', size: 'small', colors: ['gold','cream'], pattern: 'classic', price: 15.0, inventory: 5, averageRating: 0, reviews: [], createdAt: new Date() }
   ];
 
   for (const doc of sample) {
