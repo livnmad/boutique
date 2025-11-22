@@ -6,7 +6,7 @@
 
 .contact-intro {
   text-align: center;
-  color: #6b5b57;
+  color: var(--muted);
   margin-bottom: 30px;
   font-size: 1.1em;
 }
@@ -30,7 +30,7 @@
 }
 
 .required {
-  color: #d95b6b;
+  color: var(--rose);
 }
 
 .form-group input,

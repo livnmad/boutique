@@ -17,6 +17,12 @@ interface Item {
 }
 
 export default function Admin() {
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [loginError, setLoginError] = useState('');
+  const [isBlocked, setIsBlocked] = useState(false);
+  
   const [items, setItems] = useState<Item[]>([]);
   const [editingItem, setEditingItem] = useState<string | null>(null);
   const [title, setTitle] = useState('');
@@ -32,8 +38,85 @@ export default function Admin() {
   const fileRef = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
-    loadItems();
-  }, []);
+    if (isAuthenticated) {
+      loadItems();
+    }
+  }, [isAuthenticated]);
+
+  async function handleLogin(e: React.FormEvent) {
+    e.preventDefault();
+    setLoginError('');
+    
+    try {
+      const response = await axios.post('/api/auth/login', {
+        username,
+        password
+      });
+      
+      if (response.data.ok) {
+        setIsAuthenticated(true);
+        setUsername('');
+        setPassword('');
+      }
+    } catch (err: any) {
+      if (err.response?.status === 403) {
+        setIsBlocked(true);
+        setLoginError('Access blocked due to multiple failed login attempts.');
+      } else {
+        setLoginError(err.response?.data?.message || 'Invalid credentials');
+      }
+      setPassword('');
+    }
+  }
+
+  if (isBlocked) {
+    return (
+      <div className="page">
+        <div className="login-container">
+          <div className="login-blocked">
+            <h2>Access Blocked</h2>
+            <p>Your IP address has been blocked due to multiple failed login attempts.</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!isAuthenticated) {
+    return (
+      <div className="page">
+        <div className="login-container">
+          <form className="login-form" onSubmit={handleLogin}>
+            <h2>Admin Login</h2>
+            {loginError && <div className="login-error">{loginError}</div>}
+            <div className="form-group">
+              <label htmlFor="username">Username</label>
+              <input
+                id="username"
+                type="text"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                required
+                autoComplete="username"
+              />
+            </div>
+            <div className="form-group">
+              <label htmlFor="password">Password</label>
+              <input
+                id="password"
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                autoComplete="current-password"
+              />
+            </div>
+            <button type="submit" className="login-btn">Login</button>
+          </form>
+        </div>
+      </div>
+    );
+  }
 
   async function loadItems() {
     try {

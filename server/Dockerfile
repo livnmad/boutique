@@ -1,4 +1,4 @@
-FROM node:18 AS builder
+FROM node:20 AS builder
 WORKDIR /app
 
 # Copy server and client sources
@@ -15,16 +15,20 @@ WORKDIR /app/server
 RUN npm install --silent
 RUN npm run build
 
-FROM node:18-alpine
+FROM node:20-alpine
 WORKDIR /app
 
-# Copy built server
+# Copy built server and client
 COPY --from=builder /app/server/dist ./server/dist
-COPY --from=builder /app/server/package.json ./server/package.json
+COPY --from=builder /app/server/package*.json ./server/
+COPY --from=builder /app/client/dist ./client/dist
 
+# Install production dependencies
+WORKDIR /app/server
+RUN npm ci --production --silent
+
+WORKDIR /app
 ENV NODE_ENV=production
-EXPOSE 4000
-
-RUN cd server && npm install --production --silent
+EXPOSE 3020
 
 CMD ["node", "server/dist/index.js"]

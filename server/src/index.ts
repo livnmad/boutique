@@ -6,6 +6,7 @@ import fs from 'fs';
 import itemsRouter from './routes/items';
 import ordersRouter from './routes/orders';
 import contactRouter from './routes/contact';
+import authRouter from './routes/auth';
 import { checkHealth } from './elastic';
 
 dotenv.config();
@@ -22,6 +23,7 @@ app.get('/api/health', async (req, res) => {
 app.use('/api/items', itemsRouter);
 app.use('/api/orders', ordersRouter);
 app.use('/api/contact', contactRouter);
+app.use('/api/auth', authRouter);
 
 // Serve client static files (if built) and fall back to index.html for non-API routes
 const clientDist = path.join(__dirname, '..', '..', 'client', 'dist');

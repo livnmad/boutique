@@ -16,6 +16,13 @@ export default function Checkout() {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
+  const usStates = [
+    'AL', 'AZ', 'AR', 'CA', 'CO', 'CT', 'DE', 'FL', 'GA', 'ID', 'IL', 'IN', 'IA', 'KS', 'KY',
+    'LA', 'ME', 'MD', 'MA', 'MI', 'MN', 'MS', 'MO', 'MT', 'NE', 'NV', 'NH', 'NJ', 'NM', 'NY',
+    'NC', 'ND', 'OH', 'OK', 'OR', 'PA', 'RI', 'SC', 'SD', 'TN', 'TX', 'UT', 'VT', 'VA', 'WA',
+    'WV', 'WI', 'WY'
+  ];
+
   const total = cart.items.reduce((s: number, it: any) => s + (it.price || 0) * it.qty, 0);
 
   async function submit() {
@@ -71,23 +78,54 @@ export default function Checkout() {
 
         <div style={{width:360}} className="checkout-summary">
           <h3>Shipping & Contact</h3>
-          <div style={{display:'flex',flexDirection:'column',gap:8}}>
-            <div className="form-field"><label>Name</label><input placeholder="Full name" value={name} onChange={e=>setName(e.target.value)} /></div>
-            <div className="form-field"><label>Email</label><input placeholder="Email" value={email} onChange={e=>setEmail(e.target.value)} /></div>
-            <div className="form-field"><label>Address</label><input placeholder="Street address" value={address} onChange={e=>setAddress(e.target.value)} /></div>
-            <div className="form-grid-two">
-              <div className="form-field"><label>City</label><input value={city} onChange={e=>setCity(e.target.value)} /></div>
-              <div className="form-field"><label>State</label><input value={stateVal} onChange={e=>setStateVal(e.target.value)} /></div>
+          <div style={{display:'flex',flexDirection:'column',gap:12}}>
+            <div className="form-field">
+              <label>Name</label>
+              <input placeholder="Full name" value={name} onChange={e=>setName(e.target.value)} />
+            </div>
+            <div className="form-field">
+              <label>Email</label>
+              <input type="email" placeholder="Email" value={email} onChange={e=>setEmail(e.target.value)} />
+            </div>
+            <div className="form-field">
+              <label>Address</label>
+              <input placeholder="Street address" value={address} onChange={e=>setAddress(e.target.value)} />
             </div>
             <div className="form-grid-two">
-              <div className="form-field"><label>ZIP</label><input value={zip} onChange={e=>setZip(e.target.value)} /></div>
-              <div className="form-field"><label>Phone</label><input value={phone} onChange={e=>setPhone(e.target.value)} /></div>
+              <div className="form-field">
+                <label>City</label>
+                <input placeholder="City" value={city} onChange={e=>setCity(e.target.value)} />
+              </div>
+              <div className="form-field">
+                <label>State</label>
+                <select value={stateVal} onChange={e=>setStateVal(e.target.value)}>
+                  <option value="">Select</option>
+                  {usStates.map(state => (
+                    <option key={state} value={state}>{state}</option>
+                  ))}
+                </select>
+              </div>
+            </div>
+            <div className="form-grid-two">
+              <div className="form-field">
+                <label>ZIP</label>
+                <input placeholder="ZIP code" value={zip} onChange={e=>setZip(e.target.value)} />
+              </div>
+              <div className="form-field">
+                <label>Phone</label>
+                <input type="tel" placeholder="Phone" value={phone} onChange={e=>setPhone(e.target.value)} />
+              </div>
             </div>
 
-            <label className="subscribe-row"><input type="checkbox" checked={subscribe} onChange={e=>setSubscribe(e.target.checked)} /> <span>Subscribe to promotions & updates about the charity</span></label>
+            <label className="subscribe-row">
+              <input type="checkbox" checked={subscribe} onChange={e=>setSubscribe(e.target.checked)} />
+              <span>Subscribe to promotions & updates about the charity</span>
+            </label>
 
-            <button className="cta" onClick={submit} disabled={loading}>{loading? 'Placing...':'Place Order'}</button>
-            <button style={{marginTop:8}} onClick={()=>navigate(-1)}>Back to shopping</button>
+            <button className="cta" onClick={submit} disabled={loading}>
+              {loading? 'Placing...':'Place Order'}
+            </button>
+            <button className="cta" style={{marginTop:8,background:'var(--muted)'}} onClick={()=>navigate(-1)}>Back to shopping</button>
           </div>
         </div>
       </div>

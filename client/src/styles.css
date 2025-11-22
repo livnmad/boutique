@@ -1,9 +1,11 @@
 :root{
-  --bg: #fff6f2;
-  --rose: #d95b6b;
-  --muted: #6b5b57;
-  --card: #f6eae6;
-  --accent: #f2c6c9;
+  --bg: #e0d5f0;
+  --rose: #c34fa8;
+  --muted: #3d2d52;
+  --card: #d4c0e8;
+  --accent: #ab6dd6;
+  --purple: #7a529c;
+  --pink: #d86bc4;
 }
 *{box-sizing:border-box}
 html,body,#root{height:100%;}
@@ -103,12 +105,17 @@ a{color:inherit;text-decoration:none}
 
 /* Checkout styles */
 .checkout-container{max-width:1100px;margin:0 auto;padding:20px}
-.checkout-items{background:#fff;padding:12px;border-radius:12px;box-shadow:0 6px 18px rgba(0,0,0,0.04)}
+.checkout-items{background:#fff;padding:16px;border-radius:12px;box-shadow:0 6px 18px rgba(0,0,0,0.04)}
 .checkout-item{display:flex;align-items:center;gap:12px;padding:10px;border-bottom:1px solid #f0f0f0}
 .checkout-item img{width:72px;height:72px;object-fit:cover;border-radius:8px}
-.checkout-summary{background:#fff;padding:12px;border-radius:12px;box-shadow:0 6px 18px rgba(0,0,0,0.04)}
-.form-field{display:flex;flex-direction:column;margin-bottom:8px}
-.form-field input,.form-field textarea,.form-field select{padding:8px;border-radius:8px;border:1px solid #e8e8e8}
-.form-grid-two{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.subscribe-row{display:flex;align-items:center;gap:8px}
+.checkout-summary{background:#fff;padding:20px;border-radius:12px;box-shadow:0 6px 18px rgba(0,0,0,0.04)}
+.checkout-summary h3{margin-top:0;margin-bottom:16px;color:var(--rose)}
+.form-field{display:flex;flex-direction:column;margin-bottom:0}
+.form-field label{margin-bottom:4px;font-weight:600;color:var(--muted);font-size:14px}
+.form-field input,.form-field textarea,.form-field select{padding:10px;border-radius:8px;border:1px solid #e8e8e8;font-size:14px;width:100%;box-sizing:border-box}
+.form-field input:focus,.form-field textarea:focus,.form-field select:focus{outline:none;border-color:var(--rose)}
+.form-grid-two{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.subscribe-row{display:flex;align-items:center;gap:8px;margin:4px 0;cursor:pointer}
+.subscribe-row input[type="checkbox"]{cursor:pointer}
+.subscribe-row span{font-size:14px}
 
