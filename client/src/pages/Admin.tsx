@@ -129,6 +129,22 @@ export default function Admin() {
     }
   }
 
+  async function handleDelete(id: string) {
+    if (!confirm('Are you sure you want to delete this item?')) return;
+    
+    try {
+      const response = await axios.delete(`/api/items/${id}`);
+      if (response.data.ok) {
+        setStatus('Item deleted successfully!');
+        await loadItems();
+        setTimeout(() => setStatus(''), 3000);
+      }
+    } catch (err: any) {
+      console.error('Failed to delete item:', err);
+      setStatus('Error deleting item');
+    }
+  }
+
   // read uploaded file and convert to SVG string if necessary
   async function handleFile(file?: File) {
     if (!file) return;
@@ -211,23 +227,32 @@ export default function Admin() {
                   <span>${item.price}</span>
                   <span>Stock: {item.inventory || 0}</span>
                 </div>
-                <button 
-                  onClick={() => {
-                    setEditingItem(item.id);
-                    setTitle(item.title);
-                    setDescription(item.description);
-                    setCategory(item.category);
-                    setSize(item.size);
-                    setColors(item.colors.join(', '));
-                    setPattern(item.pattern);
-                    setPrice(item.price);
-                    setInventory(item.inventory || 0);
-                    setImageSvg(item.imageSvg);
-                  }}
-                  className="edit-button"
-                >
-                  Edit
-                </button>
+                <div style={{display: 'flex', gap: '8px'}}>
+                  <button 
+                    onClick={() => {
+                      setEditingItem(item.id);
+                      setTitle(item.title);
+                      setDescription(item.description);
+                      setCategory(item.category);
+                      setSize(item.size);
+                      setColors(item.colors.join(', '));
+                      setPattern(item.pattern);
+                      setPrice(item.price);
+                      setInventory(item.inventory || 0);
+                      setImageSvg(item.imageSvg);
+                    }}
+                    className="edit-button"
+                  >
+                    Edit
+                  </button>
+                  <button 
+                    onClick={() => handleDelete(item.id)}
+                    className="delete-button"
+                    type="button"
+                  >
+                    Delete
+                  </button>
+                </div>
               </div>
             ))}
           </div>

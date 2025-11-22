@@ -97,6 +97,21 @@ router.put('/:id', async (req, res) => {
   }
 });
 
+router.delete('/:id', async (req, res) => {
+  const { id } = req.params;
+  try {
+    await esClient.delete({
+      index: INDEX,
+      id,
+      refresh: true
+    });
+    res.json({ ok: true, id });
+  } catch (err: any) {
+    console.error(err);
+    res.status(500).json({ ok: false, error: err.message || String(err) });
+  }
+});
+
 // Add a review to an item
 router.post('/:id/reviews', async (req, res) => {
   const { id } = req.params;

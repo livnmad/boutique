@@ -144,6 +144,20 @@
   background-color: #e0e0e0;
 }
 
+.delete-button {
+  padding: 4px 12px;
+  background-color: #fee;
+  border: 1px solid #fcc;
+  border-radius: 4px;
+  cursor: pointer;
+  color: #c33;
+}
+
+.delete-button:hover {
+  background-color: #fdd;
+  border-color: #faa;
+}
+
 button.secondary {
   background-color: #f0f0f0;
   border: 1px solid #ddd;
