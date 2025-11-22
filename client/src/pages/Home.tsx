@@ -20,11 +20,32 @@ interface BeadFact {
 export default function Home() {
   const [reviews, setReviews] = useState<Review[]>([]);
   const [beadFacts, setBeadFacts] = useState<BeadFact[]>([]);
-
+  const [beadImages, setBeadImages] = useState<string[]>([]);
+  const colorfulBeadedBracelet = '/images/beads_6.png';
+  const customPatternDesign = '/images/beads_7.png';
+  const friendshipBracelets = '/images/beads_1.png';
   useEffect(() => {
     loadRandomReviews();
     loadRandomFacts();
+    loadRandomBeadImages();
   }, []);
+
+  function loadRandomBeadImages() {
+    // Get all bead images (beads_1.png through beads_7.png)
+    const allImages = [
+      '/images/beads_1.png',
+      '/images/beads_2.png',
+      '/images/beads_3.png',
+      '/images/beads_4.png',
+      '/images/beads_5.png',
+      '/images/beads_6.png',
+      '/images/beads_7.png'
+    ];
+    
+    // Shuffle and take 4 random images
+    const shuffled = allImages.sort(() => 0.5 - Math.random());
+    setBeadImages(shuffled.slice(0, 4));
+  }
 
   function loadRandomFacts() {
     // Get 3 random facts from the JSON file
@@ -58,10 +79,11 @@ export default function Home() {
       <section className="hero-full">
         <div className="hero-content">
           <div className="bracelet-row">
-            <div className="bracelet-card"><Bracelet size={96} /></div>
-            <div className="bracelet-card"><Bracelet size={96} /></div>
-            <div className="bracelet-card"><Bracelet size={96} /></div>
-            <div className="bracelet-card"><Bracelet size={96} /></div>
+            {beadImages.map((imgSrc, idx) => (
+              <div key={idx} className="bracelet-card">
+                <img src={imgSrc} alt={`Beads ${idx + 1}`} style={{width: '100%', height: '100%', objectFit: 'cover', borderRadius: '8px'}} />
+              </div>
+            ))}
           </div>
 
           <h1 className="hero-title">Cute, Custom, and Crafted with Care.</h1>
@@ -108,19 +130,19 @@ export default function Home() {
         <div className="gallery-grid">
           <div className="gallery-item">
             <div className="placeholder-image">
-              <Bracelet size={240} />
+              <img src={colorfulBeadedBracelet} alt="Colorful Beaded Bracelet" className="footer-image" />
               <p className="placeholder-text">Colorful Beaded Bracelet</p>
             </div>
           </div>
           <div className="gallery-item">
             <div className="placeholder-image">
-              <Bracelet size={240} />
+              <img src={customPatternDesign} alt="Custom Pattern Design" className="footer-image" />
               <p className="placeholder-text">Custom Pattern Design</p>
             </div>
           </div>
           <div className="gallery-item">
             <div className="placeholder-image">
-              <Bracelet size={240} />
+              <img src={friendshipBracelets} alt="Friendship Bracelets" className="footer-image" />
               <p className="placeholder-text">Friendship Bracelets</p>
             </div>
           </div>
