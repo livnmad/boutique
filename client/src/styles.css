@@ -47,7 +47,7 @@ a{color:inherit;text-decoration:none}
 .gallery-item{background:white;border-radius:12px;overflow:hidden;box-shadow:0 4px 10px rgba(0,0,0,0.06)}
 .placeholder-image{padding:16px;text-align:center;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:260px}
 .placeholder-text{margin-top:12px;color:var(--rose);font-weight:600;font-size:14px}
-.footer-image{max-width:100%;height:auto;border-radius:8px;box-shadow:0 2px 6px rgba(0,0,0,0.1)}
+.footer-image{max-width:100%;max-height:180px;}
 
 /* Fun facts section */
 .fun-facts-section{margin-top:40px;padding:12px 0}
