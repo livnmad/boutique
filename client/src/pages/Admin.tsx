@@ -47,6 +47,7 @@ export default function Admin() {
   const [inventory, setInventory] = useState<number>(0);
   const [status, setStatus] = useState('');
   const [imageSvg, setImageSvg] = useState<string | null>(null);
+  const [imageInfo, setImageInfo] = useState<string>('');
   const fileRef = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
@@ -191,17 +192,24 @@ export default function Admin() {
     }
   }
 
-  // read uploaded file and convert to SVG string if necessary
+  // read uploaded file and convert to optimized image format
   async function handleFile(file?: File) {
     if (!file) return;
+    
+    const fileSizeKB = (file.size / 1024).toFixed(1);
+    const fileSizeMB = (file.size / (1024 * 1024)).toFixed(2);
+    const sizeDisplay = file.size > 1024 * 1024 ? `${fileSizeMB} MB` : `${fileSizeKB} KB`;
+    
     const isSvg = file.type === 'image/svg+xml' || file.name.endsWith('.svg');
     if (isSvg) {
       const text = await file.text();
       setImageSvg(text);
+      setImageInfo(`SVG file • ${sizeDisplay}`);
       return;
     }
 
-    // for raster images, embed them into a simple SVG wrapper as data URL
+    // For raster images, resize and compress for better quality/size balance
+    const img = new Image();
     const dataUrl = await new Promise<string>((res, rej) => {
       const reader = new FileReader();
       reader.onload = () => res(String(reader.result));
@@ -209,9 +217,64 @@ export default function Admin() {
       reader.readAsDataURL(file);
     });
 
-    // create an SVG that embeds the raster image and scales to 600x600
-    const svg = `<?xml version="1.0" encoding="UTF-8"?>\n<svg xmlns='http://www.w3.org/2000/svg' width='600' height='600' viewBox='0 0 600 600'>\n  <rect width='100%' height='100%' fill='none'/>\n  <image href='${dataUrl}' x='0' y='0' width='100%' height='100%' preserveAspectRatio='xMidYMid meet'/></svg>`;
-    setImageSvg(svg);
+    img.onload = () => {
+      // Create canvas for high-quality resizing
+      const maxDimension = 1200; // Increased from 600 for better quality
+      let width = img.width;
+      let height = img.height;
+      const originalWidth = width;
+      const originalHeight = height;
+
+      // Only resize if image is larger than max dimension
+      if (width > maxDimension || height > maxDimension) {
+        if (width > height) {
+          height = (height / width) * maxDimension;
+          width = maxDimension;
+        } else {
+          width = (width / height) * maxDimension;
+          height = maxDimension;
+        }
+      }
+
+      const canvas = document.createElement('canvas');
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext('2d');
+      
+      if (ctx) {
+        // Use high-quality image smoothing
+        ctx.imageSmoothingEnabled = true;
+        ctx.imageSmoothingQuality = 'high';
+        ctx.drawImage(img, 0, 0, width, height);
+        
+        // Convert to data URL with optimized quality
+        // PNG for transparency, JPEG for photos (0.92 quality for good balance)
+        const isPng = file.type === 'image/png';
+        const optimizedDataUrl = canvas.toDataURL(
+          isPng ? 'image/png' : 'image/jpeg',
+          isPng ? undefined : 0.92
+        );
+        
+        // Calculate optimized size
+        const optimizedSizeKB = ((optimizedDataUrl.length * 3) / 4 / 1024).toFixed(1);
+        const wasResized = originalWidth !== width || originalHeight !== height;
+        const resizeInfo = wasResized ? ` → ${Math.round(width)}×${Math.round(height)}` : '';
+        
+        setImageInfo(`${file.type.split('/')[1].toUpperCase()} • Original: ${sizeDisplay} (${originalWidth}×${originalHeight})${resizeInfo} • Optimized: ${optimizedSizeKB} KB`);
+        
+        // Store as SVG wrapper for consistent rendering
+        const svg = `<?xml version="1.0" encoding="UTF-8"?>\n<svg xmlns='http://www.w3.org/2000/svg' width='${width}' height='${height}' viewBox='0 0 ${width} ${height}'>\n  <image href='${optimizedDataUrl}' x='0' y='0' width='100%' height='100%' preserveAspectRatio='xMidYMid meet'/></svg>`;
+        setImageSvg(svg);
+      }
+    };
+    
+    img.onerror = () => {
+      console.error('Failed to load image');
+      setStatus('Error loading image');
+      setImageInfo('');
+    };
+    
+    img.src = dataUrl;
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -249,6 +312,7 @@ export default function Admin() {
       setPrice('');
       setColors('');
       setImageSvg(null);
+      setImageInfo('');
       setInventory(0);
       if (fileRef.current) fileRef.current.value = '';
     } catch (err) {
@@ -510,7 +574,8 @@ export default function Admin() {
                     onChange={e => handleFile(e.target.files?.[0])} 
                     className="file-input"
                   />
-                  <div className="file-help">Accepts SVG, PNG, or JPG</div>
+                  <div className="file-help">Accepts SVG, PNG, or JPG • Max quality: 1200px • Auto-optimized</div>
+                  {imageInfo && <div className="image-info">{imageInfo}</div>}
                 </div>
 
                 {imageSvg && (
@@ -535,6 +600,7 @@ export default function Admin() {
                         setPrice('');
                         setColors('');
                         setImageSvg(null);
+                        setImageInfo('');
                         setInventory(0);
                         if (fileRef.current) fileRef.current.value = '';
                       }}
