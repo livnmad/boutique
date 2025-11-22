@@ -26,9 +26,6 @@ export default function App() {
           <div className="logo-left">
             <Logo />
           </div>
-          <div className="cart-right">
-            <CartLogoWithFirework />
-          </div>
         </div>
         <div className="header-bottom">
           <div className="nav-links">
@@ -47,6 +44,10 @@ export default function App() {
             <TypedLink to="/contact" className="nav-link">
               <span className="nav-icon">💌</span>
               <span>Contact</span>
+            </TypedLink>
+            <TypedLink to="/checkout" className="nav-link nav-link-cart">
+              <span className="nav-icon">🛒</span>
+              <span>Cart</span>
             </TypedLink>
           </div>
         </div>
