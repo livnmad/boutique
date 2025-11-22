@@ -5,8 +5,6 @@ services:
       - discovery.type=single-node
       - ES_JAVA_OPTS=-Xms512m -Xmx512m
       - xpack.security.enabled=false
-    ports:
-      - "9300:9200"
     volumes:
       - esdata:/usr/share/elasticsearch/data
 
@@ -16,7 +14,7 @@ services:
       dockerfile: server/Dockerfile
     environment:
       - PORT=3020
-      - ELASTIC_URL=http://elasticsearch:9300
+      - ELASTIC_URL=http://elasticsearch:9200
     ports:
       - "3020:3020"
     depends_on:
@@ -32,7 +30,7 @@ services:
     working_dir: /app
     command: ["sh","-c","npm install --prefix server --silent && npm run seed --prefix server"]
     environment:
-      - ELASTIC_URL=http://elasticsearch:9300
+      - ELASTIC_URL=http://elasticsearch:9200
     restart: "no"
 
 volumes:
