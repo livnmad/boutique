@@ -35,11 +35,11 @@ export default function App() {
             </TypedLink>
             <TypedLink to="/items" className="nav-link">
               <span className="nav-icon">✨</span>
-              <span>Shop Bracelets</span>
+              <span>Shop</span>
             </TypedLink>
             <TypedLink to="/about" className="nav-link">
               <span className="nav-icon">💜</span>
-              <span>Our Story</span>
+              <span>Story</span>
             </TypedLink>
             <TypedLink to="/contact" className="nav-link">
               <span className="nav-icon">💌</span>
