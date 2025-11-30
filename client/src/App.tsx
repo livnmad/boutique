@@ -14,12 +14,16 @@ import Contact from './pages/Contact';
 import Logo from './components/Logo';
 import Footer from './components/Footer';
 import './styles/product.css';
+import { useCart } from './context/CartContext';
 
 // Type assertion to fix React Router type issues
 const TypedRoute = Route as React.ComponentType<RouteProps>;
 const TypedLink = Link as React.ComponentType<{to: string; children: React.ReactNode; className?: string}>;
 const TypedRoutes = Routes as React.ComponentType<{children: React.ReactNode}>;
 export default function App() {
+  const cart = useCart();
+  const cartCount = cart.items.length;
+  const cartTotal = cart.items.reduce((s: number, it: any) => s + (it.price || 0) * it.qty, 0);
   return (
     <div className="app-container">
       <header className="site-header">
@@ -49,6 +53,13 @@ export default function App() {
             <TypedLink to="/checkout" className="nav-link nav-link-cart">
               <span className="nav-icon">🛒</span>
               <span>Cart</span>
+              {cartCount > 0 && (
+                <span style={{
+                  background:'#ff69b4',color:'#fff',borderRadius:12,padding:'2px 10px',marginLeft:8,fontWeight:600,fontSize:13
+                }}>
+                  ${cartTotal.toFixed(2)}
+                </span>
+              )}
             </TypedLink>
           </div>
         </div>
@@ -61,7 +72,7 @@ export default function App() {
           <TypedRoute path="/items" element={<Items />} />
           <TypedRoute path="/search" element={<Search />} />
           <TypedRoute path="/admin" element={<Admin />} />
-          <TypedRoute path="/checkout" element={<Checkout />} />
+          <TypedRoute path="/checkout" element={cart.items.length === 0 ? <div style={{textAlign:'center',marginTop:60,fontSize:22}}><p>Your cart is empty.</p><TypedLink to="/items" className="cta">Shop Now</TypedLink></div> : <Checkout />} />
           <TypedRoute path="/thank-you" element={<ThankYou />} />
           <TypedRoute path="/reviews/:itemId" element={<Reviews />} />
           <TypedRoute path="/contact" element={<Contact />} />
