@@ -87,9 +87,10 @@ export default function Checkout() {
         items: cart.items.map((i: any) => ({ id: i.id, qty: i.qty })),
         buyer: { name, email, address, city, state: stateVal, zip, phone, subscribe }
       };
-      await axios.post('/api/orders', payload);
+      const response = await axios.post('/api/orders', payload);
       cart.clear();
-      navigate('/');
+      const orderNumber = response.data?.orderNumber;
+      navigate('/thank-you', { state: { orderNumber } });
     } catch (err: any) {
       console.error(err);
       alert(err?.response?.data?.error || 'Order failed');
