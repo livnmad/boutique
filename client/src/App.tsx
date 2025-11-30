@@ -85,3 +85,17 @@ export default function App() {
     </div>
   );
 }
+
+/**
+ * Generate a basic bracelet title and description from its properties.
+ * @param colors string[]
+ * @param pattern string
+ * @param size string
+ * @returns { title: string, description: string }
+ */
+export function generateBraceletTitleAndDescription(colors: string[], pattern: string, size: string) {
+  const colorStr = colors.length === 1 ? colors[0] : colors.join(', ');
+  const title = `${size} ${pattern} Bracelet${colors.length ? ' - ' + colorStr : ''}`;
+  const description = `Handmade ${size.toLowerCase()} bracelet featuring a ${pattern.toLowerCase()} pattern${colors.length ? ' in ' + colorStr.toLowerCase() : ''}. Perfect for any occasion!`;
+  return { title, description };
+}

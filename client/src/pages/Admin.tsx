@@ -7,6 +7,7 @@ import { BRACELET_SIZES } from '../data/sizes';
 import { BRACELET_PATTERNS } from '../data/patterns';
 import { PRODUCT_CATEGORIES } from '../data/categories';
 import { STANDARD_BRACELET_COLORS } from '../data/standardColors';
+import { generateBraceletTitleAndDescription } from '../App';
 
 interface Item {
   id: string;
@@ -74,6 +75,8 @@ export default function Admin() {
   const [imageSvg, setImageSvg] = useState<string | null>(null);
   const [imageInfo, setImageInfo] = useState<string>('');
   const fileRef = useRef<HTMLInputElement | null>(null);
+  const [userEditedTitle, setUserEditedTitle] = useState(false);
+  const [userEditedDescription, setUserEditedDescription] = useState(false);
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -81,6 +84,19 @@ export default function Admin() {
       loadOrders();
     }
   }, [isAuthenticated]);
+
+  // Auto-generate title/description when relevant fields change, unless user has edited
+  useEffect(() => {
+    if (!userEditedTitle || !userEditedDescription) {
+      const { title: autoTitle, description: autoDesc } = generateBraceletTitleAndDescription(
+        colorsStringToArray(colors),
+        pattern,
+        size
+      );
+      if (!userEditedTitle) setTitle(autoTitle);
+      if (!userEditedDescription) setDescription(autoDesc);
+    }
+  }, [colors, pattern, size]);
 
   async function handleLogin(e: React.FormEvent) {
     e.preventDefault();
@@ -505,7 +521,7 @@ export default function Admin() {
                     id="title"
                     type="text"
                     value={title} 
-                    onChange={e => setTitle(e.target.value)} 
+                    onChange={e => { setTitle(e.target.value); setUserEditedTitle(true); }} 
                     placeholder="Rainbow Smile Bracelet"
                     required 
                   />
@@ -516,7 +532,7 @@ export default function Admin() {
                   <textarea 
                     id="description"
                     value={description} 
-                    onChange={e => setDescription(e.target.value)} 
+                    onChange={e => { setDescription(e.target.value); setUserEditedDescription(true); }} 
                     placeholder="Beautiful handmade bracelet..."
                     rows={3} 
                   />
