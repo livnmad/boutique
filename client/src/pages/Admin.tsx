@@ -42,6 +42,12 @@ function colorsStringToArray(str: string): string[] {
 
 export default function Admin() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const usernameRef = useRef<HTMLInputElement | null>(null);
+    useEffect(() => {
+      if (!isAuthenticated && usernameRef.current) {
+        usernameRef.current.focus();
+      }
+    }, [isAuthenticated]);
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [loginError, setLoginError] = useState('');
@@ -90,6 +96,7 @@ export default function Admin() {
         setIsAuthenticated(true);
         setUsername('');
         setPassword('');
+          window.scrollTo({ top: 0, behavior: 'smooth' });
       }
     } catch (err: any) {
       if (err.response?.status === 403) {
@@ -131,6 +138,7 @@ export default function Admin() {
                 onChange={(e) => setUsername(e.target.value)}
                 required
                 autoComplete="username"
+                  ref={usernameRef}
               />
             </div>
             <div className="form-group">

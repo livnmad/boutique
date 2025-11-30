@@ -13,6 +13,7 @@ import Reviews from './pages/Reviews';
 import Contact from './pages/Contact';
 import Logo from './components/Logo';
 import Footer from './components/Footer';
+import ScrollToTop from './components/ScrollToTop';
 import './styles/product.css';
 import { useCart } from './context/CartContext';
 
@@ -26,6 +27,7 @@ export default function App() {
   const cartTotal = cart.items.reduce((s: number, it: any) => s + (it.price || 0) * it.qty, 0);
   return (
     <div className="app-container">
+      <ScrollToTop />
       <header className="site-header">
         <div className="header-top">
           <div className="logo-left">
