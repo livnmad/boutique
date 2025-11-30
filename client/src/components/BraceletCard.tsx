@@ -48,11 +48,24 @@ export default function BraceletCard({ item }: { item: Item }) {
     navigate('/checkout');
   }
 
+  // Helper: is SVG markup?
+  function isSvg(content: string) {
+    return content.trim().startsWith('<svg');
+  }
+
   return (
     <div className="product-card">
       <div style={{display:'flex',justifyContent:'center',padding:12}}>
-        <div style={{width:160, height:160}}>
-          <Bracelet size={160} />
+        <div style={{width:160, height:160, display:'flex', alignItems:'center', justifyContent:'center', background:'#fff', overflow:'hidden', borderRadius:16}}>
+          {item.imageSvg ? (
+            isSvg(item.imageSvg) ? (
+              <div style={{width:'100%', height:'100%', maxWidth:140, maxHeight:140, display:'flex', alignItems:'center', justifyContent:'center'}} dangerouslySetInnerHTML={{ __html: item.imageSvg }} />
+            ) : (
+              <img src={item.imageSvg} alt={item.title || 'Bracelet'} style={{width:'100%', height:'100%', maxWidth:140, maxHeight:140, objectFit:'contain', borderRadius:12, background:'#f8f8f8', display:'block', margin:'0 auto'}} />
+            )
+          ) : (
+            <Bracelet size={140} />
+          )}
         </div>
       </div>
       <div style={{padding:'8px 12px'}}>
