@@ -6,6 +6,7 @@ import { BRACELET_SIZES } from '../data/sizes';
 
 import { BRACELET_PATTERNS } from '../data/patterns';
 import { PRODUCT_CATEGORIES } from '../data/categories';
+import { STANDARD_BRACELET_COLORS } from '../data/standardColors';
 
 interface Item {
   id: string;
@@ -29,6 +30,14 @@ interface Order {
   shippedAt: string | null;
   createdAt: string;
   total: number;
+}
+
+// Utility functions for colors
+function colorsArrayToString(arr: string[]): string {
+  return arr.join(', ');
+}
+function colorsStringToArray(str: string): string[] {
+  return str.split(',').map(c => c.trim()).filter(Boolean);
 }
 
 export default function Admin() {
@@ -296,7 +305,7 @@ export default function Admin() {
         description,
         category,
         size,
-        colors: colors.split(',').map(c => c.trim()).filter(Boolean),
+        colors: colorsStringToArray(colors),
         pattern,
         price: typeof price === 'number' ? price : parseFloat(String(price) || '0'),
         inventory,
@@ -527,14 +536,20 @@ export default function Admin() {
 
                 <div className="form-grid-2">
                   <div className="form-field">
-                    <label htmlFor="colors">Colors (comma separated)</label>
-                    <input 
+                    <label htmlFor="colors">Colors (hold Ctrl or Cmd to select multiple)</label>
+                    <select
                       id="colors"
-                      type="text"
-                      value={colors} 
-                      onChange={e => setColors(e.target.value)} 
-                      placeholder="gold, cream, pink"
-                    />
+                      multiple
+                      value={colorsStringToArray(colors)}
+                      onChange={e => {
+                        const selected = Array.from(e.target.selectedOptions, option => option.value);
+                        setColors(colorsArrayToString(selected));
+                      }}
+                    >
+                      {STANDARD_BRACELET_COLORS.map(color => (
+                        <option key={color} value={color}>{color}</option>
+                      ))}
+                    </select>
                   </div>
 
                   <div className="form-field">
