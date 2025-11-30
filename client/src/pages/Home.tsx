@@ -114,7 +114,7 @@ export default function Home() {
           </div>
 
           <h1 className="hero-title">Cute, Custom, and Crafted with Care.</h1>
-          <p className="hero-sub">Hi — I'm Olivia. I'm 11 years old and I love making things, especially bracelets. My family just moved for my dad's work, so I've been spending my time crafting colorful bracelets for other people to enjoy. I make all kinds — custom sizes and patterns are totally welcome!</p>
+          <p className="hero-sub">Hi there! I'm a young creator who loves designing and making bracelets. I recently moved to a new area, so crafting has become my favorite way to stay busy and express myself. I enjoy working with bright colors, fun patterns, and different bead styles to make each bracelet unique. Whether you want something bold, sparkly, simple, or completely custom, I'd love to make a bracelet that's perfect for you!</p>
           <a className="cta" href="/items">Shop Now</a>
         </div>
       </section>

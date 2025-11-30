@@ -10,7 +10,13 @@ export default function About() {
       <div style={{display:'flex',gap:24,alignItems:'flex-start',flexWrap:'wrap'}}>
         <div style={{flex:'1 1 360px'}}>
           <p>
-            Hi, I’m Olivia. I’m 11 years old and I love making things, especially bracelets. My family recently moved for my dad’s work, which meant saying goodbye to some friends. Making bracelets helps me feel close to people — I enjoy picking colors and patterns and I love making custom sizes so everyone can have a bracelet that fits just right.
+            Hello! I'm a young bracelet maker who loves getting creative with colors, beads, and fun designs. Crafting has become one of my favorite hobbies — especially after a recent move to a brand-new place. It's a way for me to stay connected, make new friends, and share a little happiness with others.
+            <br/>
+            <br/>
+            I create all kinds of bracelets: bold and bright, soft pastels, playful patterns, and even some with a silly twist. Each piece is made by hand, and I can adjust sizes or design something completely custom so that it fits just right and matches your style perfectly.
+            <br/>
+            <br/>
+            Every bracelet is made with care, and a portion of each sale goes toward helping others, because spreading kindness is just as important as making something beautiful. I hope one of my creations brings a smile to your day!
           </p>
           <p>
             I make all kinds: bright, pastel, patterned, and silly ones too. If you want a custom design or a special size, tell me and I’ll make it with extra care. A portion of each sale goes to charity because I want to share the love.
