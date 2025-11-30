@@ -61,7 +61,7 @@ export default function Footer() {
       </div>
 
       <div className="footer-bottom">
-        <p>&copy; {new Date().getFullYear()} Olivia's Bracelets. Made with ♥ by an 11-year-old artisan.</p>
+        <p>&copy; {new Date().getFullYear()} - Olivia's Bead Boutique. Made with ♥</p>
       </div>
     </footer>
   );
