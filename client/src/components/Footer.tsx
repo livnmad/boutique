@@ -27,7 +27,7 @@ export default function Footer() {
             choice of colors, patterns, and sizes. Each piece is unique, just like you!
           </p>
           <p className="footer-email">
-            📧 <a href="mailto:oliviabateman14@gmail.com">oliviabateman14@gmail.com</a>
+            📧 <a href="mailto:contact@oliviasbeadboutique.com">contact@oliviasbeadboutique.com</a>
           </p>
         </div>
 

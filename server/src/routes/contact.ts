@@ -148,7 +148,7 @@ router.post('/', async (req, res) => {
     // Email options
     const mailOptions = {
       from: process.env.EMAIL_USER,
-      to: 'oliviabateman14@gmail.com',
+      to: 'contact@oliviasbeadboutique.com',
       subject: `Contact Form Submission from ${sanitizedFirstName}`,
       html: emailHtml,
       replyTo: sanitizedEmail
