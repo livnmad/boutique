@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
+import Modal from '../components/Modal';
 import axios from 'axios';
 import '../styles/contact.css';
 
@@ -13,6 +14,8 @@ export default function Contact() {
   const [status, setStatus] = useState('');
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [modalOpen, setModalOpen] = useState(false);
+  const firstInvalidRef = useRef<HTMLInputElement | HTMLTextAreaElement | null>(null);
 
   // Generate CAPTCHA on component mount
   React.useEffect(() => {
@@ -38,6 +41,38 @@ export default function Contact() {
     setStatus('');
     setError('');
     setIsSubmitting(true);
+
+    // Validate required fields
+    let firstInvalid: HTMLInputElement | HTMLTextAreaElement | null = null;
+    if (!formData.firstName) {
+      setError('First name is required.');
+      setModalOpen(true);
+      firstInvalidRef.current = document.getElementById('firstName') as HTMLInputElement;
+      setIsSubmitting(false);
+      return;
+    }
+    if (!formData.email) {
+      setError('Email is required.');
+      setModalOpen(true);
+      firstInvalidRef.current = document.getElementById('email') as HTMLInputElement;
+      setIsSubmitting(false);
+      return;
+    }
+    if (!formData.comments) {
+      setError('Comments are required.');
+      setModalOpen(true);
+      firstInvalidRef.current = document.getElementById('comments') as HTMLTextAreaElement;
+      setIsSubmitting(false);
+      return;
+    }
+    // Basic email validation
+    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(formData.email)) {
+      setError('Please enter a valid email address.');
+      setModalOpen(true);
+      firstInvalidRef.current = document.getElementById('email') as HTMLInputElement;
+      setIsSubmitting(false);
+      return;
+    }
 
     // Validate CAPTCHA
     const correctAnswer = captcha.num1 + captcha.num2;
@@ -69,8 +104,21 @@ export default function Contact() {
     }
   }
 
+  // Focus first invalid field after modal closes
+  function handleModalClose() {
+    setModalOpen(false);
+    setTimeout(() => {
+      if (firstInvalidRef.current) {
+        firstInvalidRef.current.focus();
+      }
+    }, 0);
+  }
+
   return (
     <div className="page">
+      <Modal open={modalOpen} onClose={handleModalClose} title="Form Error">
+        {error}
+      </Modal>
       <div className="contact-container">
         <h2 className="section-title">Contact Us</h2>
         <p className="contact-intro">
@@ -80,7 +128,7 @@ export default function Contact() {
         <form className="contact-form" onSubmit={handleSubmit}>
           <div className="form-group">
             <label htmlFor="firstName">
-              First Name <span className="required">*</span>
+              First Name <span className="required" title="Required">*</span>
             </label>
             <input
               type="text"
@@ -95,7 +143,7 @@ export default function Contact() {
 
           <div className="form-group">
             <label htmlFor="email">
-              Email Address <span className="required">*</span>
+              Email Address <span className="required" title="Required">*</span>
             </label>
             <input
               type="email"
@@ -110,7 +158,7 @@ export default function Contact() {
 
           <div className="form-group">
             <label htmlFor="comments">
-              Comments <span className="required">*</span>
+              Comments <span className="required" title="Required">*</span>
             </label>
             <textarea
               id="comments"
