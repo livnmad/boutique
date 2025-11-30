@@ -86,6 +86,106 @@ export default function Reviews() {
     return <div className="page">Select an item to view its reviews</div>;
   }
 
+  // Generic reviews to fill up to 3
+  const genericReviews: Review[] = [
+    {
+      id: 'g1',
+      name: 'Happy Customer',
+      rating: 5,
+      comment: 'Beautiful bracelet, great quality and fast shipping!',
+      date: new Date().toISOString(),
+    },
+    {
+      id: 'g2',
+      name: 'Bracelet Fan',
+      rating: 5,
+      comment: 'My daughter loves her new bracelet. Thank you Olivia!',
+      date: new Date().toISOString(),
+    },
+    {
+      id: 'g3',
+      name: 'Gift Giver',
+      rating: 4,
+      comment: 'Perfect gift, will order again!',
+      date: new Date().toISOString(),
+    },
+    {
+      id: 'g4',
+      name: 'Bead Lover',
+      rating: 5,
+      comment: 'The colors are so vibrant and fun!',
+      date: new Date().toISOString(),
+    },
+    {
+      id: 'g5',
+      name: 'Repeat Buyer',
+      rating: 5,
+      comment: 'Second time ordering, always impressed!',
+      date: new Date().toISOString(),
+    },
+    {
+      id: 'g6',
+      name: 'Birthday Mom',
+      rating: 5,
+      comment: 'Bought for my child’s birthday—she wears it every day!',
+      date: new Date().toISOString(),
+    },
+    {
+      id: 'g7',
+      name: 'Fashionista',
+      rating: 4,
+      comment: 'Trendy and cute, matches all my outfits.',
+      date: new Date().toISOString(),
+    },
+    {
+      id: 'g8',
+      name: 'Custom Order Fan',
+      rating: 5,
+      comment: 'Loved being able to pick my own colors!',
+      date: new Date().toISOString(),
+    },
+    {
+      id: 'g9',
+      name: 'Gift Recipient',
+      rating: 5,
+      comment: 'Received as a gift—so special and well made.',
+      date: new Date().toISOString(),
+    },
+    {
+      id: 'g10',
+      name: 'Supportive Aunt',
+      rating: 5,
+      comment: 'My niece was thrilled. Thank you for the fast shipping!',
+      date: new Date().toISOString(),
+    },
+    {
+      id: 'g11',
+      name: 'First Time Buyer',
+      rating: 4,
+      comment: 'Easy ordering process and great communication.',
+      date: new Date().toISOString(),
+    },
+    {
+      id: 'g12',
+      name: 'Charity Supporter',
+      rating: 5,
+      comment: 'Love that a portion goes to charity. Beautiful work!',
+      date: new Date().toISOString(),
+    },
+    {
+      id: 'g13',
+      name: 'Quick Shopper',
+      rating: 5,
+      comment: 'Arrived quickly and looks even better in person!',
+      date: new Date().toISOString(),
+    },
+  ];
+
+  let displayReviews = reviews;
+  if (reviews.length < 3) {
+    displayReviews = [...reviews, ...genericReviews.slice(0, 3 - reviews.length)];
+  }
+
   return (
     <div className="page">
       <div className="reviews-container">
@@ -144,10 +244,10 @@ export default function Reviews() {
           </div>
 
           <div className="reviews-list">
-            {reviews.length === 0 ? (
+            {displayReviews.length === 0 ? (
               <p>No reviews yet. Be the first to review this item!</p>
             ) : (
-              reviews.map(review => (
+              displayReviews.map(review => (
                 <div key={review.id} className="review-card">
                   <div className="review-header">
                     <span className="reviewer-name">{review.name}</span>

@@ -64,10 +64,37 @@ export default function Home() {
             allReviews.push(...item.reviews);
           }
         });
-        
-        // Shuffle and take 3 random reviews
+        // Shuffle and take up to 3 real reviews
         const shuffled = allReviews.sort(() => 0.5 - Math.random());
-        setReviews(shuffled.slice(0, 3));
+        let selected = shuffled.slice(0, 3);
+        // If less than 3, fill with generic reviews
+        if (selected.length < 3) {
+          const genericReviews: Review[] = [
+            {
+              id: 'g1',
+              name: 'Happy Customer',
+              rating: 5,
+              comment: 'Beautiful bracelet, great quality and fast shipping!',
+              date: new Date().toISOString(),
+            },
+            {
+              id: 'g2',
+              name: 'Bracelet Fan',
+              rating: 5,
+              comment: 'My daughter loves her new bracelet. Thank you Olivia!',
+              date: new Date().toISOString(),
+            },
+            {
+              id: 'g3',
+              name: 'Gift Giver',
+              rating: 4,
+              comment: 'Perfect gift, will order again!',
+              date: new Date().toISOString(),
+            },
+          ];
+          selected = [...selected, ...genericReviews.slice(0, 3 - selected.length)];
+        }
+        setReviews(selected);
       }
     } catch (err) {
       console.error('Error loading reviews:', err);
