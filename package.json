@@ -16,5 +16,8 @@
     "@types/react": "^19.2.2",
     "@types/react-dom": "^19.2.2",
     "concurrently": "^8.2.0"
+  },
+  "dependencies": {
+    "uuid": "^13.0.0"
   }
 }
