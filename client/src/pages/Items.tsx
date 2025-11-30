@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import BraceletCard from '../components/BraceletCard';
+import { FILTER_TYPES, FILTER_COLORS, FILTER_SIZES } from '../data/filterOptions';
 
 type Item = {
   id?: string;
@@ -22,19 +23,10 @@ export default function Items() {
   const [size, setSize] = useState('');
   const [refreshKey, setRefreshKey] = useState(0);
 
-  // For filter dropdowns
-  const beadTypes = ['Choker', 'Bracelet', 'Necklace'];
-  // Static top 10 main colors
-  const beadColors = [
-    'Red', 'Blue', 'Yellow', 'Black', 'White', 'Green', 'Purple', 'Pink', 'Orange', 'Brown'
-  ];
-  const beadSizes = [
-    'Small (6")',
-    'Medium (7")',
-    'Large (8")',
-    'X-Large (10")',
-    'Custom'
-  ];
+  // Centralized filter dropdowns
+  const beadTypes = FILTER_TYPES;
+  const beadColors = FILTER_COLORS;
+  const beadSizes = FILTER_SIZES;
 
   useEffect(() => {
     setLoading(true);

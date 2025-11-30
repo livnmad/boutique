@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import axios from 'axios';
 import '../styles/admin.css';
+import { FILTER_TYPES, FILTER_COLORS, FILTER_SIZES } from '../data/filterOptions';
 
 interface Item {
   id: string;
@@ -9,7 +10,7 @@ interface Item {
   category: string;
   size: string;
   colors: string[];
-  pattern: string;
+  theme: string;
   price: number;
   inventory: number;
   imageSvg: string | null;
@@ -44,10 +45,10 @@ export default function Admin() {
   const [editingItem, setEditingItem] = useState<string | null>(null);
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
-  const [category, setCategory] = useState('bracelet');
-  const [size, setSize] = useState('medium');
-  const [colors, setColors] = useState('pastel');
-  const [pattern, setPattern] = useState('');
+  const [category, setCategory] = useState(FILTER_TYPES[1].toLowerCase());
+  const [size, setSize] = useState(FILTER_SIZES[1]);
+  const [colors, setColors] = useState<string[]>([]);
+  const [theme, setTheme] = useState('');
   const [price, setPrice] = useState<number | ''>('');
   const [inventory, setInventory] = useState<number>(0);
   const [status, setStatus] = useState('');
@@ -303,8 +304,8 @@ export default function Admin() {
         description,
         category,
         size,
-        colors: colors.split(',').map(c => c.trim()).filter(Boolean),
-        pattern,
+        colors,
+        pattern: theme,
         price: typeof price === 'number' ? price : parseFloat(String(price) || '0'),
         inventory,
         imageSvg,
@@ -325,9 +326,9 @@ export default function Admin() {
       // reset form
       setTitle('');
       setDescription('');
-      setPattern('');
+      setTheme('');
       setPrice('');
-      setColors('');
+      setColors([]);
       setImageSvg(null);
       setImageInfo('');
       setInventory(0);
@@ -462,8 +463,8 @@ export default function Admin() {
                             setDescription(item.description);
                             setCategory(item.category);
                             setSize(item.size);
-                            setColors(item.colors.join(', '));
-                            setPattern(item.pattern);
+                            setColors(item.colors || []);
+                            setTheme(item.theme);
                             setPrice(item.price);
                             setInventory(item.inventory || 0);
                             setImageSvg(item.imageSvg);
@@ -515,44 +516,49 @@ export default function Admin() {
                 <div className="form-grid-2">
                   <div className="form-field">
                     <label htmlFor="category">Category</label>
-                    <input 
-                      id="category"
-                      type="text"
-                      value={category} 
-                      onChange={e => setCategory(e.target.value)} 
-                    />
+                    <select id="category" value={category} onChange={e => setCategory(e.target.value)}>
+                      {FILTER_TYPES.map(t => (
+                        <option key={t} value={t.toLowerCase()}>{t}</option>
+                      ))}
+                    </select>
                   </div>
 
                   <div className="form-field">
                     <label htmlFor="size">Size</label>
                     <select id="size" value={size} onChange={e => setSize(e.target.value)}>
-                      <option value="small">Small</option>
-                      <option value="medium">Medium</option>
-                      <option value="large">Large</option>
-                      <option value="custom">Custom</option>
+                      {FILTER_SIZES.map(s => (
+                        <option key={s} value={s}>{s}</option>
+                      ))}
                     </select>
                   </div>
                 </div>
 
                 <div className="form-grid-2">
                   <div className="form-field">
-                    <label htmlFor="colors">Colors (comma separated)</label>
-                    <input 
+                    <label htmlFor="colors">Colors</label>
+                    <select
                       id="colors"
-                      type="text"
-                      value={colors} 
-                      onChange={e => setColors(e.target.value)} 
-                      placeholder="gold, cream, pink"
-                    />
+                      multiple
+                      value={colors}
+                      onChange={e => {
+                        const selected = Array.from(e.target.selectedOptions).map(opt => opt.value);
+                        setColors(selected);
+                      }}
+                      style={{ minHeight: '90px' }}
+                    >
+                      {FILTER_COLORS.map(c => (
+                        <option key={c} value={c.toLowerCase()}>{c}</option>
+                      ))}
+                    </select>
                   </div>
 
                   <div className="form-field">
-                    <label htmlFor="pattern">Pattern</label>
+                    <label htmlFor="theme">Theme</label>
                     <input 
-                      id="pattern"
+                      id="theme"
                       type="text"
-                      value={pattern} 
-                      onChange={e => setPattern(e.target.value)} 
+                      value={theme} 
+                      onChange={e => setTheme(e.target.value)} 
                       placeholder="rainbow, wave, etc"
                     />
                   </div>
@@ -616,9 +622,9 @@ export default function Admin() {
                         setEditingItem(null);
                         setTitle('');
                         setDescription('');
-                        setPattern('');
+                        setTheme('');
                         setPrice('');
-                        setColors('');
+                        setColors([]);
                         setImageSvg(null);
                         setImageInfo('');
                         setInventory(0);
