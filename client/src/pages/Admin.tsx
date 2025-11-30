@@ -55,12 +55,24 @@ export default function Admin() {
   const [imageInfo, setImageInfo] = useState<string>('');
   const fileRef = useRef<HTMLInputElement | null>(null);
 
+
+  // Load items first, then orders, to ensure enrichment works
   useEffect(() => {
     if (isAuthenticated) {
-      loadItems();
-      loadOrders();
+      (async () => {
+        await loadItems();
+        await loadOrders();
+      })();
     }
   }, [isAuthenticated]);
+
+  // If items change after initial load, reload orders to update enrichment
+  useEffect(() => {
+    if (isAuthenticated && items.length > 0) {
+      loadOrders();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [items.length]);
 
   async function handleLogin(e: React.FormEvent) {
     e.preventDefault();
