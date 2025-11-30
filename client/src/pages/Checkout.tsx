@@ -101,8 +101,8 @@ export default function Checkout() {
   return (
     <div className="page checkout-container">
       <h2 className="section-title">Checkout</h2>
-      <div style={{display:'flex',gap:20,alignItems:'flex-start',flexWrap:'wrap'}}>
-        <div style={{flex:'1 1 580px'}} className="checkout-items">
+      <div className="checkout-flex">
+        <div className="checkout-items">
           <h3>Items</h3>
           {cart.items.map((it: any) => (
             <div key={it.id} className="checkout-item">
@@ -130,7 +130,7 @@ export default function Checkout() {
           </div>
         </div>
 
-        <div style={{width:360}} className="checkout-summary">
+        <div className="checkout-summary">
           <h3>Shipping & Contact</h3>
           <div style={{display:'flex',flexDirection:'column',gap:12}}>
             <div className="form-field">

@@ -1,3 +1,26 @@
+/* Responsive checkout flex */
+.checkout-flex {
+  display: flex;
+  gap: 20px;
+  align-items: flex-start;
+  flex-wrap: wrap;
+}
+.checkout-flex > .checkout-items,
+.checkout-flex > .checkout-summary {
+  flex: 1 1 0;
+  min-width: 0;
+  width: 50%;
+}
+@media (max-width: 900px) {
+  .checkout-flex {
+    flex-direction: column;
+    gap: 16px;
+  }
+  .checkout-flex > .checkout-items,
+  .checkout-flex > .checkout-summary {
+    width: 100%;
+  }
+}
 :root{
   --bg: #E5E2FE;
   --rose: #c34fa8;
