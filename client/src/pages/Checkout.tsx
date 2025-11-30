@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
+import Modal from '../components/Modal';
 import { useCart } from '../context/CartContext';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
@@ -14,6 +15,9 @@ export default function Checkout() {
   const [phone, setPhone] = useState('');
   const [subscribe, setSubscribe] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [modalMsg, setModalMsg] = useState('');
+  const firstInvalidRef = useRef<HTMLInputElement | HTMLSelectElement | null>(null);
   const navigate = useNavigate();
 
   const usStates = [
@@ -27,6 +31,56 @@ export default function Checkout() {
 
   async function submit() {
     if (!cart.items.length) return;
+    // Validate required fields
+    if (!name) {
+      setModalMsg('Name is required.');
+      setModalOpen(true);
+      firstInvalidRef.current = document.getElementById('checkout-name') as HTMLInputElement;
+      return;
+    }
+    if (!email) {
+      setModalMsg('Email is required.');
+      setModalOpen(true);
+      firstInvalidRef.current = document.getElementById('checkout-email') as HTMLInputElement;
+      return;
+    }
+    if (!address) {
+      setModalMsg('Address is required.');
+      setModalOpen(true);
+      firstInvalidRef.current = document.getElementById('checkout-address') as HTMLInputElement;
+      return;
+    }
+    if (!city) {
+      setModalMsg('City is required.');
+      setModalOpen(true);
+      firstInvalidRef.current = document.getElementById('checkout-city') as HTMLInputElement;
+      return;
+    }
+    if (!stateVal) {
+      setModalMsg('State is required.');
+      setModalOpen(true);
+      firstInvalidRef.current = document.getElementById('checkout-state') as HTMLSelectElement;
+      return;
+    }
+    if (!zip) {
+      setModalMsg('ZIP code is required.');
+      setModalOpen(true);
+      firstInvalidRef.current = document.getElementById('checkout-zip') as HTMLInputElement;
+      return;
+    }
+    if (!phone) {
+      setModalMsg('Phone is required.');
+      setModalOpen(true);
+      firstInvalidRef.current = document.getElementById('checkout-phone') as HTMLInputElement;
+      return;
+    }
+    // Basic email validation
+    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
+      setModalMsg('Please enter a valid email address.');
+      setModalOpen(true);
+      firstInvalidRef.current = document.getElementById('checkout-email') as HTMLInputElement;
+      return;
+    }
     setLoading(true);
     try {
       const payload = {
@@ -80,25 +134,25 @@ export default function Checkout() {
           <h3>Shipping & Contact</h3>
           <div style={{display:'flex',flexDirection:'column',gap:12}}>
             <div className="form-field">
-              <label>Name</label>
-              <input placeholder="Full name" value={name} onChange={e=>setName(e.target.value)} />
+              <label>Name <span className="required" title="Required">*</span></label>
+              <input id="checkout-name" placeholder="Full name" value={name} onChange={e=>setName(e.target.value)} required />
             </div>
             <div className="form-field">
-              <label>Email</label>
-              <input type="email" placeholder="Email" value={email} onChange={e=>setEmail(e.target.value)} />
+              <label>Email <span className="required" title="Required">*</span></label>
+              <input id="checkout-email" type="email" placeholder="Email" value={email} onChange={e=>setEmail(e.target.value)} required />
             </div>
             <div className="form-field">
-              <label>Address</label>
-              <input placeholder="Street address" value={address} onChange={e=>setAddress(e.target.value)} />
+              <label>Address <span className="required" title="Required">*</span></label>
+              <input id="checkout-address" placeholder="Street address" value={address} onChange={e=>setAddress(e.target.value)} required />
             </div>
             <div className="form-grid-two">
               <div className="form-field">
-                <label>City</label>
-                <input placeholder="City" value={city} onChange={e=>setCity(e.target.value)} />
+                <label>City <span className="required" title="Required">*</span></label>
+                <input id="checkout-city" placeholder="City" value={city} onChange={e=>setCity(e.target.value)} required />
               </div>
               <div className="form-field">
-                <label>State</label>
-                <select value={stateVal} onChange={e=>setStateVal(e.target.value)}>
+                <label>State <span className="required" title="Required">*</span></label>
+                <select id="checkout-state" value={stateVal} onChange={e=>setStateVal(e.target.value)} required>
                   <option value="">Select</option>
                   {usStates.map(state => (
                     <option key={state} value={state}>{state}</option>
@@ -108,12 +162,12 @@ export default function Checkout() {
             </div>
             <div className="form-grid-two">
               <div className="form-field">
-                <label>ZIP</label>
-                <input placeholder="ZIP code" value={zip} onChange={e=>setZip(e.target.value)} />
+                <label>ZIP <span className="required" title="Required">*</span></label>
+                <input id="checkout-zip" placeholder="ZIP code" value={zip} onChange={e=>setZip(e.target.value)} required />
               </div>
               <div className="form-field">
-                <label>Phone</label>
-                <input type="tel" placeholder="Phone" value={phone} onChange={e=>setPhone(e.target.value)} />
+                <label>Phone <span className="required" title="Required">*</span></label>
+                <input id="checkout-phone" type="tel" placeholder="Phone" value={phone} onChange={e=>setPhone(e.target.value)} required />
               </div>
             </div>
 
@@ -125,6 +179,14 @@ export default function Checkout() {
             <button className="cta" onClick={submit} disabled={loading}>
               {loading? 'Placing...':'Place Order'}
             </button>
+            <Modal open={modalOpen} onClose={() => {
+              setModalOpen(false);
+              setTimeout(() => {
+                if (firstInvalidRef.current) firstInvalidRef.current.focus();
+              }, 0);
+            }} title="Form Error">
+              {modalMsg}
+            </Modal>
             <button className="cta" style={{marginTop:8,background:'var(--muted)'}} onClick={()=>navigate(-1)}>Back to shopping</button>
           </div>
         </div>
