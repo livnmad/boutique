@@ -76,7 +76,7 @@ export default function BraceletCard({ item }: { item: Item }) {
           <small>Pattern: {item.pattern || '—'}</small>
           <small>Colors: {(item.colors || []).join(', ') || '—'}</small>
         </div>
-        <div style={{display:'flex',flexDirection:'column',gap:8,marginTop:8}}>
+        <div style={{display:'flex',flexDirection:'column',gap:8,marginTop:'auto',marginBottom:0}}>
           <div style={{display:'flex',alignItems:'center',gap:8}}>
             {item.averageRating ? (
               <>

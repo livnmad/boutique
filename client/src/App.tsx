@@ -1,5 +1,4 @@
 import React from 'react';
-import CartLogoWithFirework from './components/CartLogoWithFirework';
 import type { RouteProps } from 'react-router-dom';
 import { Routes, Route, Link } from 'react-router-dom';
 import Home from './pages/Home';
