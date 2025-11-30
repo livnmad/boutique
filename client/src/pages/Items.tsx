@@ -73,28 +73,73 @@ export default function Items() {
           onChange={e => setSearch(e.target.value)}
         />
         <select value={type} onChange={e => setType(e.target.value)} className="filter-select">
-          <option value="">All Types</option>
-          {beadTypes.map(t => (
-            <option key={t} value={t.toLowerCase()} style={{ textTransform: 'capitalize' }}>
-              {t}
-            </option>
-          ))}
+          <option value="">All Types ({items.length})</option>
+          {beadTypes.map(t => {
+            // Count items matching this type (with other filters except type itself)
+            const count = items.filter(it => {
+              if (t && it.category !== t) return false;
+              if (search.length >= 3) {
+                const searchLower = search.toLowerCase();
+                const titleLower = it.title?.toLowerCase() || '';
+                const descLower = it.description?.toLowerCase() || '';
+                if (!(titleLower.includes(searchLower) || descLower.includes(searchLower))) return false;
+              }
+              if (color && !((it.colors || []).some(c => c?.toLowerCase() === color.toLowerCase()))) return false;
+              if (size && it.size !== size) return false;
+              return true;
+            }).length;
+            return (
+              <option key={t} value={t.toLowerCase()} style={{ textTransform: 'capitalize' }}>
+                {t} ({count})
+              </option>
+            );
+          })}
         </select>
         <select value={color} onChange={e => setColor(e.target.value)} className="filter-select">
-          <option value="">All Colors</option>
-          {beadColors.map(c => (
-            <option key={c} value={c.toLowerCase()} style={{ textTransform: 'capitalize' }}>
-              {c.charAt(0).toUpperCase() + c.slice(1)}
-            </option>
-          ))}
+          <option value="">All Colors ({items.length})</option>
+          {beadColors.map(c => {
+            // Count items matching this color (with other filters except color itself)
+            const count = items.filter(it => {
+              if (type && it.category !== type) return false;
+              if (search.length >= 3) {
+                const searchLower = search.toLowerCase();
+                const titleLower = it.title?.toLowerCase() || '';
+                const descLower = it.description?.toLowerCase() || '';
+                if (!(titleLower.includes(searchLower) || descLower.includes(searchLower))) return false;
+              }
+              if (c && !((it.colors || []).some(col => col?.toLowerCase() === c.toLowerCase()))) return false;
+              if (size && it.size !== size) return false;
+              return true;
+            }).length;
+            return (
+              <option key={c} value={c.toLowerCase()} style={{ textTransform: 'capitalize' }}>
+                {c.charAt(0).toUpperCase() + c.slice(1)} ({count})
+              </option>
+            );
+          })}
         </select>
         <select value={size} onChange={e => setSize(e.target.value)} className="filter-select">
-          <option value="">All Sizes</option>
-          {beadSizes.map(s => (
-            <option key={s} value={s} style={{ textTransform: 'capitalize' }}>
-              {s}
-            </option>
-          ))}
+          <option value="">All Sizes ({items.length})</option>
+          {beadSizes.map(s => {
+            // Count items matching this size (with other filters except size itself)
+            const count = items.filter(it => {
+              if (type && it.category !== type) return false;
+              if (search.length >= 3) {
+                const searchLower = search.toLowerCase();
+                const titleLower = it.title?.toLowerCase() || '';
+                const descLower = it.description?.toLowerCase() || '';
+                if (!(titleLower.includes(searchLower) || descLower.includes(searchLower))) return false;
+              }
+              if (color && !((it.colors || []).some(c => c?.toLowerCase() === color.toLowerCase()))) return false;
+              if (s && it.size !== s) return false;
+              return true;
+            }).length;
+            return (
+              <option key={s} value={s} style={{ textTransform: 'capitalize' }}>
+                {s} ({count})
+              </option>
+            );
+          })}
         </select>
         {(type || color || size || search) && (
           <button

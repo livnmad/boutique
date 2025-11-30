@@ -1,7 +1,7 @@
 import React from 'react';
 import CartLogoWithFirework from './components/CartLogoWithFirework';
 import type { RouteProps } from 'react-router-dom';
-import { Routes, Route, Link } from 'react-router-dom';
+import { Routes, Route, Link, useLocation } from 'react-router-dom';
 import Home from './pages/Home';
 import About from './pages/About';
 import Items from './pages/Items';
@@ -21,6 +21,10 @@ const TypedRoute = Route as React.ComponentType<RouteProps>;
 const TypedLink = Link as React.ComponentType<{to: string; children: React.ReactNode; className?: string}>;
 const TypedRoutes = Routes as React.ComponentType<{children: React.ReactNode}>;
 export default function App() {
+  const location = useLocation();
+  React.useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [location]);
   const cart = useCart();
   const cartCount = cart.items.length;
   const cartTotal = cart.items.reduce((s: number, it: any) => s + (it.price || 0) * it.qty, 0);
