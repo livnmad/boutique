@@ -87,7 +87,7 @@ router.post('/', async (req, res) => {
       total: 0
     };
     
-    await esClient.index({
+    const result = await esClient.index({
       index: ORDERS_INDEX,
       document: order,
       refresh: true
@@ -96,7 +96,8 @@ router.post('/', async (req, res) => {
     // refresh index
     await esClient.indices.refresh({ index: ITEMS_INDEX });
 
-    return res.json({ ok: true });
+    // Return the order number (id)
+    return res.json({ ok: true, orderNumber: result._id });
   } catch (err: any) {
     console.error(err);
     return res.status(500).json({ ok: false, error: err.message || String(err) });

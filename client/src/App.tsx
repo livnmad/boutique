@@ -8,6 +8,7 @@ import Items from './pages/Items';
 import Search from './pages/Search';
 import Admin from './pages/Admin';
 import Checkout from './pages/Checkout';
+import ThankYou from './pages/ThankYou';
 import Reviews from './pages/Reviews';
 import Contact from './pages/Contact';
 import Logo from './components/Logo';
@@ -61,6 +62,7 @@ export default function App() {
           <TypedRoute path="/search" element={<Search />} />
           <TypedRoute path="/admin" element={<Admin />} />
           <TypedRoute path="/checkout" element={<Checkout />} />
+          <TypedRoute path="/thank-you" element={<ThankYou />} />
           <TypedRoute path="/reviews/:itemId" element={<Reviews />} />
           <TypedRoute path="/contact" element={<Contact />} />
         </TypedRoutes>
