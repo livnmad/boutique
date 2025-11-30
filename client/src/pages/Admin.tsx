@@ -2,6 +2,11 @@ import React, { useState, useRef, useEffect } from 'react';
 import axios from 'axios';
 import '../styles/admin.css';
 
+import { BRACELET_SIZES } from '../data/sizes';
+
+import { BRACELET_PATTERNS } from '../data/patterns';
+import { PRODUCT_CATEGORIES } from '../data/categories';
+
 interface Item {
   id: string;
   title: string;
@@ -503,21 +508,19 @@ export default function Admin() {
                 <div className="form-grid-2">
                   <div className="form-field">
                     <label htmlFor="category">Category</label>
-                    <input 
-                      id="category"
-                      type="text"
-                      value={category} 
-                      onChange={e => setCategory(e.target.value)} 
-                    />
+                    <select id="category" value={category} onChange={e => setCategory(e.target.value)}>
+                      {PRODUCT_CATEGORIES.map(cat => (
+                        <option key={cat} value={cat}>{cat}</option>
+                      ))}
+                    </select>
                   </div>
 
                   <div className="form-field">
                     <label htmlFor="size">Size</label>
                     <select id="size" value={size} onChange={e => setSize(e.target.value)}>
-                      <option value="small">Small</option>
-                      <option value="medium">Medium</option>
-                      <option value="large">Large</option>
-                      <option value="custom">Custom</option>
+                      {BRACELET_SIZES.map(sz => (
+                        <option key={sz} value={sz}>{sz}</option>
+                      ))}
                     </select>
                   </div>
                 </div>
@@ -536,13 +539,15 @@ export default function Admin() {
 
                   <div className="form-field">
                     <label htmlFor="pattern">Pattern</label>
-                    <input 
+                    <select
                       id="pattern"
-                      type="text"
-                      value={pattern} 
-                      onChange={e => setPattern(e.target.value)} 
-                      placeholder="rainbow, wave, etc"
-                    />
+                      value={pattern}
+                      onChange={e => setPattern(e.target.value)}
+                    >
+                      {BRACELET_PATTERNS.map(pat => (
+                        <option key={pat} value={pat}>{pat}</option>
+                      ))}
+                    </select>
                   </div>
                 </div>
 
@@ -561,14 +566,15 @@ export default function Admin() {
 
                   <div className="form-field">
                     <label htmlFor="inventory">Inventory</label>
-                    <input 
+                    <select
                       id="inventory"
-                      type="number" 
-                      min="0" 
-                      value={inventory} 
-                      onChange={e => setInventory(Number(e.target.value))} 
-                      placeholder="10"
-                    />
+                      value={inventory}
+                      onChange={e => setInventory(Number(e.target.value))}
+                    >
+                      {Array.from({ length: 10 }, (_, i) => i + 1).map(num => (
+                        <option key={num} value={num}>{num}</option>
+                      ))}
+                    </select>
                   </div>
                 </div>
 
