@@ -36,6 +36,11 @@ export default function Admin() {
   const [view, setView] = useState<'dashboard' | 'inventory'>('dashboard');
   const [items, setItems] = useState<Item[]>([]);
   const [orders, setOrders] = useState<Order[]>([]);
+
+  // Calculate sums for dashboard cards
+  const totalOrderSum = orders.reduce((sum, o) => sum + (o.total || 0), 0);
+  const shippedOrderSum = orders.filter(o => o.shipped).reduce((sum, o) => sum + (o.total || 0), 0);
+  const pendingOrderSum = orders.filter(o => !o.shipped).reduce((sum, o) => sum + (o.total || 0), 0);
   const [editingItem, setEditingItem] = useState<string | null>(null);
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
@@ -347,14 +352,17 @@ export default function Admin() {
             <div className="stat-card">
               <div className="stat-value">{orders.length}</div>
               <div className="stat-label">Total Orders</div>
+              <div className="stat-sum">${totalOrderSum.toFixed(2)}</div>
             </div>
             <div className="stat-card">
               <div className="stat-value">{orders.filter(o => o.shipped).length}</div>
               <div className="stat-label">Shipped</div>
+              <div className="stat-sum">${shippedOrderSum.toFixed(2)}</div>
             </div>
             <div className="stat-card">
               <div className="stat-value">{orders.filter(o => !o.shipped).length}</div>
               <div className="stat-label">Pending</div>
+              <div className="stat-sum">${pendingOrderSum.toFixed(2)}</div>
             </div>
           </div>
 
