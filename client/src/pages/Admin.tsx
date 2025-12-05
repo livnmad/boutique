@@ -57,6 +57,7 @@ export default function Admin() {
   const [view, setView] = useState<'dashboard' | 'inventory'>('dashboard');
   const [items, setItems] = useState<Item[]>([]);
   const [orders, setOrders] = useState<Order[]>([]);
+  const [orderFilter, setOrderFilter] = useState<'all' | 'pending' | 'shipped'>('all');
 
   // Calculate sums for dashboard cards
   const totalOrderSum = orders.reduce((sum, o) => sum + (o.total || 0), 0);
@@ -406,12 +407,31 @@ export default function Admin() {
 
           <div className="orders-section">
             <h3>Recent Orders</h3>
+            <div style={{display:'flex',gap:8,margin:'8px 0'}}>
+              <button className={`admin-nav-btn ${orderFilter==='all'?'active':''}`} onClick={()=>setOrderFilter('all')}>All</button>
+              <button className={`admin-nav-btn ${orderFilter==='pending'?'active':''}`} onClick={()=>setOrderFilter('pending')}>Pending</button>
+              <button className={`admin-nav-btn ${orderFilter==='shipped'?'active':''}`} onClick={()=>setOrderFilter('shipped')}>Shipped</button>
+            </div>
             {orders.length === 0 ? (
               <div className="empty-state">No orders yet</div>
             ) : (
-              <div className="orders-grid">
-                {orders.map(order => (
-                  <div key={order.id} className={`order-card ${order.shipped ? 'shipped' : 'pending'}`}>
+              <div className="orders-grid" style={{display:'flex',flexDirection:'column',gap:12}}>
+                {(
+                  (() => {
+                    const computeUpdatedAt = (o: Order) => new Date(o.shippedAt || o.createdAt).getTime();
+                    let list = orders.slice();
+                    if (orderFilter === 'pending') {
+                      list = list.filter(o => !o.shipped).sort((a,b)=> new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
+                    } else if (orderFilter === 'shipped') {
+                      list = list.filter(o => o.shipped).sort((a,b)=> computeUpdatedAt(b) - computeUpdatedAt(a));
+                    } else {
+                      // all: most recently updated at the top
+                      list = list.sort((a,b)=> computeUpdatedAt(b) - computeUpdatedAt(a));
+                    }
+                    return list;
+                  })()
+                ).map(order => (
+                  <div key={order.id} className={`order-card ${order.shipped ? 'shipped' : 'pending'}`} style={{width:'100%'}}>
                     <div className="order-header">
                       <div>
                         <div className="order-id">Order #{order.id.slice(0, 8)}</div>

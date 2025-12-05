@@ -54,45 +54,52 @@ export default function BraceletCard({ item }: { item: Item }) {
     return content.trim().startsWith('<svg');
   }
 
+  // Derive a reliable review count from available fields
+  const derivedReviewCount: number = (typeof item.reviewCount === 'number' ? item.reviewCount : ((item as any).reviews && Array.isArray((item as any).reviews) ? (item as any).reviews.length : 0)) || 0;
+
   return (
-    <div className="product-card">
-      <div style={{display:'flex',justifyContent:'center',padding:12}}>
-        <div data-test-id="product-image-container" style={{width:160, height:160, display:'flex', alignItems:'center', justifyContent:'center', background:'#fff', overflow:'hidden', borderRadius:16}}>
-          {item.imageSvg ? (
-            isSvg(item.imageSvg) ? (
-              <div data-test-id="product-image-svg" style={{width:'100%', height:'100%', maxWidth:140, maxHeight:140, display:'flex', alignItems:'center', justifyContent:'center'}} dangerouslySetInnerHTML={{ __html: item.imageSvg }} />
-            ) : (
-              <img data-test-id="product-image" src={item.imageSvg} alt={item.title || 'Bracelet'} style={{width:'100%', height:'100%', maxWidth:140, maxHeight:140, objectFit:'contain', borderRadius:12, background:'#f8f8f8', display:'block', margin:'0 auto'}} />
-            )
-          ) : (
-            <Bracelet data-test-id="product-image-fallback" size={140} />
-          )}
-        </div>
-      </div>
-      <div style={{padding:'8px 12px'}}>
+    <div className="product-card" style={{display:'flex',flexDirection:'column',minHeight:380}}>
+      <div style={{padding:'8px 12px', display:'flex', flexDirection:'column', flex:1}}>
         <h3 style={{margin:'6px 0'}}>{item.title}</h3>
+        <div style={{display:'flex',justifyContent:'center',padding:12}}>
+          <div data-test-id="product-image-container" style={{width:160, height:160, display:'flex', alignItems:'center', justifyContent:'center', background:'#fff', overflow:'hidden', borderRadius:16}}>
+            {item.imageSvg ? (
+              isSvg(item.imageSvg) ? (
+                <div data-test-id="product-image-svg" style={{width:'100%', height:'100%', maxWidth:140, maxHeight:120, display:'flex', alignItems:'center', justifyContent:'center'}} dangerouslySetInnerHTML={{ __html: item.imageSvg }} />
+              ) : (
+                <img data-test-id="product-image" src={item.imageSvg} alt={item.title || 'Bracelet'} style={{width:'100%', height:'100%', maxWidth:140, maxHeight:120, objectFit:'contain', borderRadius:12, background:'#f8f8f8', display:'block', margin:'0 auto'}} />
+              )
+            ) : (
+              <Bracelet data-test-id="product-image-fallback" size={140} />
+            )}
+          </div>
+        </div>
         <p style={{margin:'6px 0',color:'#6b5b57'}}>{item.description}</p>
-        <div style={{display:'flex',gap:8,flexWrap:'wrap',marginTop:8}}>
+        <div style={{display:'flex',gap:8,flexWrap:'wrap',marginTop:8,minHeight:40,alignItems:'center'}}>
           <small>Size: {item.size || 'n/a'}</small>
           <small>Pattern: {item.pattern || '—'}</small>
           <small>Colors: {(item.colors || []).join(', ') || '—'}</small>
         </div>
-        <div style={{display:'flex',flexDirection:'column',gap:8,marginTop:'auto',marginBottom:0}}>
-          <div style={{display:'flex',alignItems:'center',gap:8}}>
+        <div style={{display:'flex',flexDirection:'column',gap:8,marginTop:'auto',marginBottom:0, borderTop:'1px solid #eee', paddingTop:10}}>
+          <div style={{display:'flex',alignItems:'center',gap:8,flexWrap:'nowrap'}}>
             {item.averageRating ? (
               <>
                 <div className="rating-stars">{'★'.repeat(Math.round(item.averageRating))}{'☆'.repeat(5 - Math.round(item.averageRating))}</div>
-                <small>({item.reviewCount} reviews)</small>
+                {derivedReviewCount > 0 ? (
+                  <small style={{whiteSpace:'nowrap'}}>({derivedReviewCount})</small>
+                ) : null}
               </>
             ) : (
-              <small>No reviews yet</small>
+              <small style={{whiteSpace:'nowrap'}}>No reviews yet</small>
             )}
-            <TypedLink 
-              to={`/reviews/${item.id}`} 
-              style={{marginLeft:'auto',fontSize:'0.9em',color:'var(--primary-color)'}}
-            >
-              View Reviews
-            </TypedLink>
+            {derivedReviewCount > 0 ? (
+              <TypedLink 
+                to={`/reviews/${item.id}`} 
+                style={{marginLeft:'auto',fontSize:'0.9em',color:'var(--primary-color)',whiteSpace:'nowrap'}}
+              >
+                View Reviews
+              </TypedLink>
+            ) : null}
           </div>
           <div style={{display:'flex',justifyContent:'space-between',alignItems:'center'}}>
             <div>
