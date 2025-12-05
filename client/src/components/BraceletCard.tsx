@@ -17,6 +17,7 @@ type Item = {
   inventory?: number;
   averageRating?: number;
   reviewCount?: number;
+  imageSvg?: string;
 };
 
 export default function BraceletCard({ item }: { item: Item }) {
