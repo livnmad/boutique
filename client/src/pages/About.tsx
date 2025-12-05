@@ -1,6 +1,6 @@
 import React from 'react';
 import Logo from '../components/Logo';
-import Bracelet from '../components/Bracelet';
+// Using real product images instead of SVG bracelets
 
 export default function About() {
   return (
@@ -23,15 +23,15 @@ export default function About() {
           </p>
         </div>
         <aside style={{flex:'0 0 360px',display:'flex',flexDirection:'column',alignItems:'center',gap:12}}>
-          <div style={{background:'#fff',padding:16,borderRadius:12}}>
-            {/* big bracelet svg */}
-            <Bracelet size={260} />
+          <div style={{background:'#fff',padding:16,borderRadius:12, width: '100%', display:'flex', justifyContent:'center'}}>
+            {/* hero product image */}
+            <img data-test-id="about-hero-image" src="/images/beads_6.png" alt="Featured Bracelet" style={{width: '100%', maxWidth: 320, height: 'auto', objectFit: 'contain', borderRadius: 12}} />
           </div>
 
           <div style={{display:'flex',gap:8}}>
-            <Bracelet size={86} />
-            <Bracelet size={86} />
-            <Bracelet size={86} />
+            <img data-test-id="about-image-1" src="/images/beads_2.png" alt="Bracelet Style 1" style={{width: 100, height: 100, objectFit: 'cover', borderRadius: 8}} />
+            <img data-test-id="about-image-2" src="/images/beads_4.png" alt="Bracelet Style 2" style={{width: 100, height: 100, objectFit: 'cover', borderRadius: 8}} />
+            <img data-test-id="about-image-3" src="/images/beads_1.png" alt="Bracelet Style 3" style={{width: 100, height: 100, objectFit: 'cover', borderRadius: 8}} />
           </div>
         </aside>
       </div>

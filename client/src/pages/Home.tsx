@@ -81,7 +81,7 @@ export default function Home() {
           <div className="bracelet-row">
             {beadImages.map((imgSrc, idx) => (
               <div key={idx} className="bracelet-card">
-                <img src={imgSrc} alt={`Beads ${idx + 1}`} style={{width: '100%', height: '100%', objectFit: 'cover', borderRadius: '8px'}} />
+                <img data-test-id={`home-hero-image-${idx}`} src={imgSrc} alt={`Beads ${idx + 1}`} style={{width: '100%', height: '100%', objectFit: 'cover', borderRadius: '8px'}} />
               </div>
             ))}
           </div>
@@ -130,19 +130,19 @@ export default function Home() {
         <div className="gallery-grid">
           <div className="gallery-item">
             <div className="placeholder-image">
-              <img src={colorfulBeadedBracelet} alt="Colorful Beaded Bracelet" className="footer-image" />
+              <img data-test-id="home-footer-image-colorful" src={colorfulBeadedBracelet} alt="Colorful Beaded Bracelet" className="footer-image" />
               <p className="placeholder-text">Colorful Beaded Bracelet</p>
             </div>
           </div>
           <div className="gallery-item">
             <div className="placeholder-image">
-              <img src={customPatternDesign} alt="Custom Pattern Design" className="footer-image" />
+              <img data-test-id="home-footer-image-custom" src={customPatternDesign} alt="Custom Pattern Design" className="footer-image" />
               <p className="placeholder-text">Custom Pattern Design</p>
             </div>
           </div>
           <div className="gallery-item">
             <div className="placeholder-image">
-              <img src={friendshipBracelets} alt="Friendship Bracelets" className="footer-image" />
+              <img data-test-id="home-footer-image-friendship" src={friendshipBracelets} alt="Friendship Bracelets" className="footer-image" />
               <p className="placeholder-text">Friendship Bracelets</p>
             </div>
           </div>

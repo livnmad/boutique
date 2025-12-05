@@ -57,15 +57,15 @@ export default function BraceletCard({ item }: { item: Item }) {
   return (
     <div className="product-card">
       <div style={{display:'flex',justifyContent:'center',padding:12}}>
-        <div style={{width:160, height:160, display:'flex', alignItems:'center', justifyContent:'center', background:'#fff', overflow:'hidden', borderRadius:16}}>
+        <div data-test-id="product-image-container" style={{width:160, height:160, display:'flex', alignItems:'center', justifyContent:'center', background:'#fff', overflow:'hidden', borderRadius:16}}>
           {item.imageSvg ? (
             isSvg(item.imageSvg) ? (
-              <div style={{width:'100%', height:'100%', maxWidth:140, maxHeight:140, display:'flex', alignItems:'center', justifyContent:'center'}} dangerouslySetInnerHTML={{ __html: item.imageSvg }} />
+              <div data-test-id="product-image-svg" style={{width:'100%', height:'100%', maxWidth:140, maxHeight:140, display:'flex', alignItems:'center', justifyContent:'center'}} dangerouslySetInnerHTML={{ __html: item.imageSvg }} />
             ) : (
-              <img src={item.imageSvg} alt={item.title || 'Bracelet'} style={{width:'100%', height:'100%', maxWidth:140, maxHeight:140, objectFit:'contain', borderRadius:12, background:'#f8f8f8', display:'block', margin:'0 auto'}} />
+              <img data-test-id="product-image" src={item.imageSvg} alt={item.title || 'Bracelet'} style={{width:'100%', height:'100%', maxWidth:140, maxHeight:140, objectFit:'contain', borderRadius:12, background:'#f8f8f8', display:'block', margin:'0 auto'}} />
             )
           ) : (
-            <Bracelet size={140} />
+            <Bracelet data-test-id="product-image-fallback" size={140} />
           )}
         </div>
       </div>
