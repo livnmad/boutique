@@ -66,6 +66,9 @@ async function run() {
             buyer: { type: 'object', enabled: false },
             shipped: { type: 'boolean' },
             shippedAt: { type: 'date' },
+            shippingProvider: { type: 'keyword' },
+            trackingId: { type: 'keyword' },
+            emailCustomerNotified: { type: 'boolean' },
             createdAt: { type: 'date' },
             total: { type: 'float' }
           }

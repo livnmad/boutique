@@ -29,6 +29,8 @@ interface Order {
   buyer: { name: string; email: string };
   shipped: boolean;
   shippedAt: string | null;
+  shippingProvider?: string | null;
+  trackingId?: string | null;
   createdAt: string;
   total: number;
 }
@@ -58,6 +60,9 @@ export default function Admin() {
   const [items, setItems] = useState<Item[]>([]);
   const [orders, setOrders] = useState<Order[]>([]);
   const [orderFilter, setOrderFilter] = useState<'all' | 'pending' | 'shipped'>('all');
+  const [shippingEdit, setShippingEdit] = useState<{ orderId: string | null; provider: string; tracking: string; email: boolean; }>(
+    { orderId: null, provider: '', tracking: '', email: true }
+  );
 
   // Calculate sums for dashboard cards
   const totalOrderSum = orders.reduce((sum, o) => sum + (o.total || 0), 0);
@@ -78,6 +83,36 @@ export default function Admin() {
   const fileRef = useRef<HTMLInputElement | null>(null);
   const [userEditedTitle, setUserEditedTitle] = useState(false);
   const [userEditedDescription, setUserEditedDescription] = useState(false);
+  const [backfillStatus, setBackfillStatus] = useState<string>('');
+
+  function getTrackingUrl(provider?: string | null, tracking?: string | null): string | null {
+    if (!provider || !tracking) return null;
+    const p = provider.toLowerCase();
+    const id = encodeURIComponent(tracking);
+    if (p.includes('ups')) return `https://www.ups.com/track?tracknum=${id}`;
+    if (p.includes('usps')) return `https://tools.usps.com/go/TrackConfirmAction?tLabels=${id}`;
+    if (p.includes('fedex')) return `https://www.fedex.com/fedextrack/?trknbr=${id}`;
+    if (p.includes('dhl')) return `https://www.dhl.com/global-en/home/tracking.html?tracking-id=${id}`;
+    // fallback to search
+    return `https://www.google.com/search?q=${encodeURIComponent(`${provider} ${tracking}`)}`;
+  }
+
+  async function runBackfill() {
+    try {
+      setBackfillStatus('Backfilling…');
+      const resp = await axios.post('/api/orders/backfill');
+      if (resp.data?.ok) {
+        setBackfillStatus(`Backfilled ${resp.data.updated || 0} orders`);
+        await loadOrders();
+      } else {
+        setBackfillStatus('Backfill failed');
+      }
+      setTimeout(()=>setBackfillStatus(''), 4000);
+    } catch (e) {
+      setBackfillStatus('Backfill failed');
+      setTimeout(()=>setBackfillStatus(''), 4000);
+    }
+  }
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -227,12 +262,27 @@ export default function Admin() {
     }
   }
 
-  async function toggleShipped(orderId: string, currentStatus: boolean) {
+  async function submitShipped(orderId: string) {
     try {
-      await axios.put(`/api/orders/${orderId}`, { shipped: !currentStatus });
+      await axios.put(`/api/orders/${orderId}`, {
+        shipped: true,
+        shippingProvider: shippingEdit.provider || undefined,
+        trackingId: shippingEdit.tracking || undefined,
+        emailCustomer: shippingEdit.email
+      });
+      setShippingEdit({ orderId: null, provider: '', tracking: '', email: true });
       await loadOrders();
     } catch (err) {
-      console.error('Failed to update order status:', err);
+      console.error('Failed to mark shipped:', err);
+    }
+  }
+
+  async function unship(orderId: string) {
+    try {
+      await axios.put(`/api/orders/${orderId}`, { shipped: false });
+      await loadOrders();
+    } catch (err) {
+      console.error('Failed to unship order:', err);
     }
   }
 
@@ -411,6 +461,7 @@ export default function Admin() {
               <button className={`admin-nav-btn ${orderFilter==='all'?'active':''}`} onClick={()=>setOrderFilter('all')}>All</button>
               <button className={`admin-nav-btn ${orderFilter==='pending'?'active':''}`} onClick={()=>setOrderFilter('pending')}>Pending</button>
               <button className={`admin-nav-btn ${orderFilter==='shipped'?'active':''}`} onClick={()=>setOrderFilter('shipped')}>Shipped</button>
+                {/* Backfill button intentionally hidden */}
             </div>
             {orders.length === 0 ? (
               <div className="empty-state">No orders yet</div>
@@ -465,14 +516,64 @@ export default function Admin() {
                       ))}
                     </div>
 
-                    <div className="order-footer">
+                    <div className="order-footer" style={{display:'flex',flexDirection:'column',gap:8}}>
                       <div className="order-total">Total: ${order.total.toFixed(2)}</div>
-                      <button 
-                        className={`ship-btn ${order.shipped ? 'unship' : 'ship'}`}
-                        onClick={() => toggleShipped(order.id, order.shipped)}
-                      >
-                        {order.shipped ? 'Mark Unshipped' : 'Mark Shipped'}
-                      </button>
+                      {!order.shipped ? (
+                        shippingEdit.orderId === order.id ? (
+                          <div className="ship-form" style={{display:'grid',gridTemplateColumns:'1fr 1fr auto',gap:8,alignItems:'center'}}>
+                            <select
+                              aria-label="Shipping provider"
+                              value={shippingEdit.provider}
+                              onChange={e=>setShippingEdit({...shippingEdit, provider: e.target.value})}
+                            >
+                              <option value="">Select provider</option>
+                              <option value="USPS">USPS</option>
+                              <option value="UPS">UPS</option>
+                              <option value="FedEx">FedEx</option>
+                              <option value="DHL">DHL</option>
+                            </select>
+                            <input
+                              type="text"
+                              placeholder="Tracking ID"
+                              value={shippingEdit.tracking}
+                              onChange={e=>setShippingEdit({...shippingEdit, tracking: e.target.value})}
+                            />
+                            <label style={{display:'flex',alignItems:'center',gap:6}}>
+                              <input type="checkbox" checked={shippingEdit.email} onChange={e=>setShippingEdit({...shippingEdit, email: e.target.checked})} />
+                              Email customer
+                            </label>
+                            <div style={{display:'flex',gap:8,gridColumn:'1 / -1'}}>
+                              <button type="button" className="ship-btn ship" onClick={()=>submitShipped(order.id)}>Save & Mark Shipped</button>
+                              <button type="button" className="ship-btn unship" onClick={()=>setShippingEdit({orderId:null,provider:'',tracking:'',email:true})}>Cancel</button>
+                            </div>
+                          </div>
+                        ) : (
+                          <button type="button" className="ship-btn ship" onClick={()=>setShippingEdit({orderId: order.id, provider: order.shippingProvider || '', tracking: order.trackingId || '', email: true})}>
+                            Mark Shipped
+                          </button>
+                        )
+                      ) : (
+                        <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',gap:8,flexWrap:'wrap'}}>
+                          <div style={{fontSize:'.9em',color:'#555'}}>
+                            {order.shippingProvider ? (
+                              <span>Provider: {order.shippingProvider}</span>
+                            ) : (
+                              <span>Provider: —</span>
+                            )}
+                            {order.trackingId ? (
+                              (()=>{
+                                const url = getTrackingUrl(order.shippingProvider, order.trackingId);
+                                return url ? (
+                                  <span> • Tracking: <a href={url} target="_blank" rel="noopener noreferrer">{order.trackingId}</a></span>
+                                ) : (
+                                  <span> • Tracking: {order.trackingId}</span>
+                                );
+                              })()
+                            ) : null}
+                          </div>
+                          <button type="button" className="ship-btn unship" onClick={()=>unship(order.id)}>Mark Unshipped</button>
+                        </div>
+                      )}
                     </div>
                   </div>
                 ))}
