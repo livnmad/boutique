@@ -168,8 +168,26 @@ router.post('/', async (req, res) => {
       total: 0
     };
     
+    // Generate a unique 6-character ID (A-Z, 0-9)
+    function makeId() {
+      const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+      let out = '';
+      for (let i = 0; i < 6; i++) {
+        out += alphabet[Math.floor(Math.random() * alphabet.length)];
+      }
+      return out;
+    }
+    let orderId = makeId();
+    // Ensure uniqueness by retrying a few times if collision (unlikely)
+    for (let attempts = 0; attempts < 5; attempts++) {
+      const exists = await esClient.get({ index: ORDERS_INDEX, id: orderId }).then(()=>true).catch(()=>false);
+      if (!exists) break;
+      orderId = makeId();
+    }
+
     const result = await esClient.index({
       index: ORDERS_INDEX,
+      id: orderId,
       document: order,
       refresh: true
     });
@@ -180,6 +198,21 @@ router.post('/', async (req, res) => {
     // Return the order number (id)
     return res.json({ ok: true, orderNumber: result._id });
   } catch (err: any) {
+    console.error(err);
+    return res.status(500).json({ ok: false, error: err.message || String(err) });
+  }
+});
+
+// GET /api/orders/:id - Fetch a single order by ID
+router.get('/:id', async (req, res) => {
+  const { id } = req.params;
+  try {
+    const r: any = await esClient.get({ index: ORDERS_INDEX, id });
+    if (!r || !r._source) return res.status(404).json({ ok: false, error: 'Order not found' });
+    return res.json({ ok: true, order: { id: r._id, ...(r._source || {}) } });
+  } catch (err: any) {
+    const status = err?.statusCode || err?.status;
+    if (status === 404) return res.status(404).json({ ok: false, error: 'Order not found' });
     console.error(err);
     return res.status(500).json({ ok: false, error: err.message || String(err) });
   }

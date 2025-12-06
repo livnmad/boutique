@@ -9,6 +9,7 @@ import Admin from './pages/Admin';
 import Checkout from './pages/Checkout';
 import ThankYou from './pages/ThankYou';
 import Reviews from './pages/Reviews';
+import OrderReview from './pages/OrderReview';
 import Contact from './pages/Contact';
 import Logo from './components/Logo';
 import Footer from './components/Footer';
@@ -76,6 +77,7 @@ export default function App() {
           <TypedRoute path="/checkout" element={cart.items.length === 0 ? <div style={{textAlign:'center',marginTop:60,fontSize:22}}><p>Your cart is empty.</p><TypedLink to="/items" className="cta">Shop Now</TypedLink></div> : <Checkout />} />
           <TypedRoute path="/thank-you" element={<ThankYou />} />
           <TypedRoute path="/reviews/:itemId" element={<Reviews />} />
+          <TypedRoute path="/order-review" element={<OrderReview />} />
           <TypedRoute path="/contact" element={<Contact />} />
         </TypedRoutes>
       </main>
