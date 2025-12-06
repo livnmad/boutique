@@ -133,6 +133,12 @@ router.post('/login', async (req, res) => {
 
   // Check credentials
   if (username === ADMIN_USERNAME && password === ADMIN_PASSWORD) {
+    // Set a simple session cookie valid for 1 hour
+    res.cookie('admin_session', 'active', {
+      httpOnly: true,
+      sameSite: 'lax',
+      maxAge: 60 * 60 * 1000
+    });
     return res.json({ ok: true });
   }
 
@@ -155,6 +161,16 @@ router.post('/login', async (req, res) => {
     ok: false,
     message: `Invalid credentials. ${remainingAttempts} attempt(s) remaining.`
   });
+});
+
+// Check current session
+router.get('/me', (req, res) => {
+  const raw = req.headers.cookie || '';
+  const hasSession = raw.split(';').some(part => part.trim().startsWith('admin_session='));
+  if (hasSession) {
+    return res.json({ ok: true });
+  }
+  return res.status(401).json({ ok: false });
 });
 
 export default router;

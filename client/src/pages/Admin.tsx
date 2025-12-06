@@ -56,6 +56,18 @@ export default function Admin() {
   const [password, setPassword] = useState('');
   const [loginError, setLoginError] = useState('');
   const [isBlocked, setIsBlocked] = useState(false);
+
+  // Check persisted session on mount
+  useEffect(() => {
+    (async () => {
+      try {
+        const resp = await axios.get('/api/auth/me', { withCredentials: true });
+        if (resp.data?.ok) {
+          setIsAuthenticated(true);
+        }
+      } catch {}
+    })();
+  }, []);
   
   const [view, setView] = useState<'dashboard' | 'inventory'>('dashboard');
   const [items, setItems] = useState<Item[]>([]);
@@ -167,7 +179,7 @@ export default function Admin() {
       const response = await axios.post('/api/auth/login', {
         username,
         password
-      });
+      }, { withCredentials: true });
       
       if (response.data.ok) {
         setIsAuthenticated(true);
