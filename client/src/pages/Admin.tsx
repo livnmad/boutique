@@ -77,7 +77,7 @@ export default function Admin() {
   const [view, setView] = useState<'dashboard' | 'inventory'>('dashboard');
   const [items, setItems] = useState<Item[]>([]);
   const [orders, setOrders] = useState<Order[]>([]);
-  const [orderFilter, setOrderFilter] = useState<'all' | 'pending' | 'shipped' | 'delivered'>('pending');
+  const [orderFilter, setOrderFilter] = useState<'all' | 'pending' | 'shipped' | 'delivered' | 'archived'>('pending');
   const [shippingEdit, setShippingEdit] = useState<{ orderId: string | null; provider: string; tracking: string; email: boolean; }>(
     { orderId: null, provider: '', tracking: '', email: true }
   );
@@ -522,6 +522,7 @@ export default function Admin() {
               <button className={`admin-nav-btn ${orderFilter==='pending'?'active':''}`} onClick={()=>setOrderFilter('pending')}>Pending</button>
               <button className={`admin-nav-btn ${orderFilter==='shipped'?'active':''}`} onClick={()=>setOrderFilter('shipped')}>Shipped</button>
               <button className={`admin-nav-btn ${orderFilter==='delivered'?'active':''}`} onClick={()=>setOrderFilter('delivered')}>Delivered</button>
+              <button className={`admin-nav-btn ${orderFilter==='archived'?'active':''}`} onClick={()=>setOrderFilter('archived')}>Archived</button>
                 {/* Backfill button intentionally hidden */}
             </div>
             {orders.length === 0 ? (
@@ -532,6 +533,7 @@ export default function Admin() {
                   (() => {
                     const computeUpdatedAt = (o: Order) => new Date(o.deliveredAt || o.shippedAt || o.createdAt).getTime();
                     let list = orders.slice();
+                    const sevenDaysMs = 7 * 24 * 60 * 60 * 1000;
                     if (orderFilter === 'pending') {
                       list = list.filter(o => !o.shipped).sort((a,b)=> new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
                     } else if (orderFilter === 'shipped') {
@@ -540,6 +542,15 @@ export default function Admin() {
                         .sort((a,b)=> computeUpdatedAt(b) - computeUpdatedAt(a));
                     } else if (orderFilter === 'delivered') {
                       list = list.filter(o => !!o.deliveredAt).sort((a,b)=> computeUpdatedAt(b) - computeUpdatedAt(a));
+                    } else if (orderFilter === 'archived') {
+                      const now = Date.now();
+                      list = list
+                        .filter(o => {
+                          if (!o.deliveredAt) return false;
+                          const d = new Date(o.deliveredAt).getTime();
+                          return (now - d) > sevenDaysMs;
+                        })
+                        .sort((a,b)=> computeUpdatedAt(b) - computeUpdatedAt(a));
                     } else {
                       // all: most recently updated at the top
                       list = list.sort((a,b)=> computeUpdatedAt(b) - computeUpdatedAt(a));
@@ -640,9 +651,11 @@ export default function Admin() {
                             ) : null}
                           </div>
                           {!order.deliveredAt && (
-                            <button type="button" className="ship-btn ship" onClick={()=>markDelivered(order.id)}>Mark Delivered</button>
+                            <>
+                              <button type="button" className="ship-btn ship" onClick={()=>markDelivered(order.id)}>Mark Delivered</button>
+                              <button type="button" className="ship-btn unship" onClick={()=>unship(order.id)}>Mark Unshipped</button>
+                            </>
                           )}
-                          <button type="button" className="ship-btn unship" onClick={()=>unship(order.id)}>Mark Unshipped</button>
                         </div>
                       )}
                     </div>
