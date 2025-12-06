@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import axios from 'axios';
 import '../styles/admin.css';
+import '../components/modal.css';
 
 import { BRACELET_SIZES } from '../data/sizes';
 
@@ -56,6 +57,10 @@ export default function Admin() {
   const [password, setPassword] = useState('');
   const [loginError, setLoginError] = useState('');
   const [isBlocked, setIsBlocked] = useState(false);
+  const [pwStatus, setPwStatus] = useState('');
+  const [currentPw, setCurrentPw] = useState('');
+  const [newPw, setNewPw] = useState('');
+  const [showPwModal, setShowPwModal] = useState(false);
 
   // Check persisted session on mount
   useEffect(() => {
@@ -467,7 +472,7 @@ export default function Admin() {
     <div className="page admin-page">
       <div className="admin-header">
         <h2 className="admin-title">Admin Dashboard</h2>
-        <div className="admin-nav">
+        <div className="admin-nav" style={{display:'flex',gap:12,alignItems:'center',flexWrap:'wrap'}}>
           <button 
             className={`admin-nav-btn ${view === 'dashboard' ? 'active' : ''}`}
             onClick={() => setView('dashboard')}
@@ -480,6 +485,13 @@ export default function Admin() {
           >
             📦 Inventory
           </button>
+          <button type="button" className="admin-nav-btn" onClick={()=>setShowPwModal(true)}>🔒 Change Password</button>
+          <button type="button" className="admin-nav-btn" onClick={async ()=>{
+            try {
+              await axios.post('/api/auth/logout', {}, { withCredentials: true });
+            } catch {}
+            setIsAuthenticated(false);
+          }}>🚪 Logout</button>
         </div>
       </div>
 
@@ -846,6 +858,41 @@ export default function Admin() {
 
                 {status && <div className="form-status">{status}</div>}
               </form>
+            </div>
+          </div>
+        </div>
+      )}
+      {showPwModal && (
+        <div className="modal-backdrop">
+          <div className="modal">
+            <div className="modal-title">Change Admin Password</div>
+            <div className="modal-content">
+              <div style={{display:'grid',gap:10}}>
+                <input type="password" placeholder="Current password" value={currentPw} onChange={e=>setCurrentPw(e.target.value)} />
+                <input type="password" placeholder="New password (min 6 chars)" value={newPw} onChange={e=>setNewPw(e.target.value)} />
+              </div>
+              {pwStatus && <div style={{marginTop:8,fontSize:'.9em'}}>{pwStatus}</div>}
+            </div>
+            <div style={{display:'flex',gap:8,justifyContent:'center'}}>
+              <button type="button" className="admin-nav-btn" onClick={()=>{ setShowPwModal(false); setPwStatus(''); }}>
+                Cancel
+              </button>
+              <button type="button" className="modal-close" onClick={async ()=>{
+                setPwStatus('');
+                try {
+                  const resp = await axios.post('/api/auth/change-password', { currentPassword: currentPw, newPassword: newPw }, { withCredentials: true });
+                  if (resp.data?.ok) {
+                    setPwStatus('Password updated');
+                    setCurrentPw('');
+                    setNewPw('');
+                    setTimeout(()=>{ setPwStatus(''); setShowPwModal(false); }, 1200);
+                  }
+                } catch (e: any) {
+                  setPwStatus(e?.response?.data?.error || 'Failed to update');
+                }
+              }}>
+                Save
+              </button>
             </div>
           </div>
         </div>
