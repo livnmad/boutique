@@ -69,6 +69,7 @@ async function run() {
             shippingProvider: { type: 'keyword' },
             trackingId: { type: 'keyword' },
             emailCustomerNotified: { type: 'boolean' },
+            deliveredAt: { type: 'date' },
             createdAt: { type: 'date' },
             total: { type: 'float' }
           }

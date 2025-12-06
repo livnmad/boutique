@@ -29,6 +29,7 @@ interface Order {
   buyer: { name: string; email: string };
   shipped: boolean;
   shippedAt: string | null;
+  deliveredAt: string | null;
   shippingProvider?: string | null;
   trackingId?: string | null;
   createdAt: string;
@@ -59,7 +60,7 @@ export default function Admin() {
   const [view, setView] = useState<'dashboard' | 'inventory'>('dashboard');
   const [items, setItems] = useState<Item[]>([]);
   const [orders, setOrders] = useState<Order[]>([]);
-  const [orderFilter, setOrderFilter] = useState<'all' | 'pending' | 'shipped'>('all');
+  const [orderFilter, setOrderFilter] = useState<'all' | 'pending' | 'shipped' | 'delivered'>('pending');
   const [shippingEdit, setShippingEdit] = useState<{ orderId: string | null; provider: string; tracking: string; email: boolean; }>(
     { orderId: null, provider: '', tracking: '', email: true }
   );
@@ -286,6 +287,16 @@ export default function Admin() {
     }
   }
 
+  async function markDelivered(orderId: string) {
+    try {
+      const now = new Date().toISOString();
+      await axios.put(`/api/orders/${orderId}`, { deliveredAt: now });
+      await loadOrders();
+    } catch (err) {
+      console.error('Failed to mark delivered:', err);
+    }
+  }
+
   // read uploaded file and convert to optimized image format
   async function handleFile(file?: File) {
     if (!file) return;
@@ -461,6 +472,7 @@ export default function Admin() {
               <button className={`admin-nav-btn ${orderFilter==='all'?'active':''}`} onClick={()=>setOrderFilter('all')}>All</button>
               <button className={`admin-nav-btn ${orderFilter==='pending'?'active':''}`} onClick={()=>setOrderFilter('pending')}>Pending</button>
               <button className={`admin-nav-btn ${orderFilter==='shipped'?'active':''}`} onClick={()=>setOrderFilter('shipped')}>Shipped</button>
+              <button className={`admin-nav-btn ${orderFilter==='delivered'?'active':''}`} onClick={()=>setOrderFilter('delivered')}>Delivered</button>
                 {/* Backfill button intentionally hidden */}
             </div>
             {orders.length === 0 ? (
@@ -469,12 +481,16 @@ export default function Admin() {
               <div className="orders-grid" style={{display:'flex',flexDirection:'column',gap:12}}>
                 {(
                   (() => {
-                    const computeUpdatedAt = (o: Order) => new Date(o.shippedAt || o.createdAt).getTime();
+                    const computeUpdatedAt = (o: Order) => new Date(o.deliveredAt || o.shippedAt || o.createdAt).getTime();
                     let list = orders.slice();
                     if (orderFilter === 'pending') {
                       list = list.filter(o => !o.shipped).sort((a,b)=> new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
                     } else if (orderFilter === 'shipped') {
-                      list = list.filter(o => o.shipped).sort((a,b)=> computeUpdatedAt(b) - computeUpdatedAt(a));
+                      list = list
+                        .filter(o => o.shipped && !o.deliveredAt)
+                        .sort((a,b)=> computeUpdatedAt(b) - computeUpdatedAt(a));
+                    } else if (orderFilter === 'delivered') {
+                      list = list.filter(o => !!o.deliveredAt).sort((a,b)=> computeUpdatedAt(b) - computeUpdatedAt(a));
                     } else {
                       // all: most recently updated at the top
                       list = list.sort((a,b)=> computeUpdatedAt(b) - computeUpdatedAt(a));
@@ -570,7 +586,13 @@ export default function Admin() {
                                 );
                               })()
                             ) : null}
+                            {order.deliveredAt ? (
+                              <span> • Delivered: {new Date(order.deliveredAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
+                            ) : null}
                           </div>
+                          {!order.deliveredAt && (
+                            <button type="button" className="ship-btn ship" onClick={()=>markDelivered(order.id)}>Mark Delivered</button>
+                          )}
                           <button type="button" className="ship-btn unship" onClick={()=>unship(order.id)}>Mark Unshipped</button>
                         </div>
                       )}

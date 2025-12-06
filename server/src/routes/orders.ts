@@ -28,11 +28,12 @@ router.get('/', async (req, res) => {
 // PUT /api/orders/:id - Update order status
 router.put('/:id', async (req, res) => {
   const { id } = req.params;
-  const { shipped, shippingProvider, trackingId, emailCustomer } = req.body as {
+  const { shipped, shippingProvider, trackingId, emailCustomer, deliveredAt } = req.body as {
     shipped: boolean;
     shippingProvider?: string;
     trackingId?: string;
     emailCustomer?: boolean;
+    deliveredAt?: string | null;
   };
   
   try {
@@ -45,6 +46,11 @@ router.put('/:id', async (req, res) => {
       doc.shippingProvider = null;
       doc.trackingId = null;
       doc.emailCustomerNotified = false;
+    }
+
+    // deliveredAt can be set independently of shipped
+    if (typeof deliveredAt !== 'undefined') {
+      (doc as any).deliveredAt = deliveredAt || null;
     }
 
     await esClient.update({
@@ -73,6 +79,7 @@ router.post('/backfill', async (req, res) => {
           trackingId: { type: 'keyword' },
           emailCustomerNotified: { type: 'boolean' },
           shippedAt: { type: 'date' },
+          deliveredAt: { type: 'date' },
         }
       });
     } catch (e: any) {
@@ -104,6 +111,7 @@ router.post('/backfill', async (req, res) => {
         doc.shippedAt = src.createdAt || new Date().toISOString();
         needUpdate = true;
       }
+      if (typeof src.deliveredAt === 'undefined') { doc.deliveredAt = null; needUpdate = true; }
 
       if (needUpdate) {
         toUpdate++;
@@ -165,7 +173,8 @@ router.post('/', async (req, res) => {
       trackingId: null,
       emailCustomerNotified: false,
       createdAt: new Date().toISOString(),
-      total: 0
+      total: 0,
+      deliveredAt: null
     };
     
     // Generate a unique 6-character ID (A-Z, 0-9)
