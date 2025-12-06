@@ -29,12 +29,7 @@ export default function App() {
     <div className="app-container">
       <ScrollToTop />
       <header className="site-header">
-        <div className="header-top">
-          <div className="logo-left">
-            <Logo />
-          </div>
-        </div>
-        <div className="header-bottom">
+        <div className="header-title">
           <div className="nav-links">
             <TypedLink to="/" className="nav-link">
               <span className="nav-icon">🏠</span>
@@ -65,8 +60,12 @@ export default function App() {
             </TypedLink>
           </div>
         </div>
+        <div className="header-top">
+          <div className="logo-left">
+            <Logo />
+          </div>
+        </div>
       </header>
-
       <main>
         <TypedRoutes>
           <TypedRoute path="/" element={<Home />} />
