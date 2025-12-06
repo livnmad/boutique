@@ -117,8 +117,32 @@ export default function Admin() {
 
   useEffect(() => {
     if (isAuthenticated) {
-      loadItems();
-      loadOrders();
+      (async () => {
+        try {
+          const itemsResp = await axios.get('/api/items');
+          const itemsData = itemsResp.data?.results || [];
+          setItems(itemsData);
+
+          const ordersResp = await axios.get('/api/orders');
+          if (ordersResp.data?.ok) {
+            const enrichedOrders = ordersResp.data.orders.map((order: Order) => {
+              const enrichedItems = order.items.map(orderItem => {
+                const item = itemsData.find((i: any) => i.id === orderItem.id);
+                return {
+                  ...orderItem,
+                  title: item?.title || 'Unknown Item',
+                  price: item?.price || 0
+                };
+              });
+              const total = enrichedItems.reduce((sum, it) => sum + (it.price || 0) * it.qty, 0);
+              return { ...order, items: enrichedItems, total };
+            });
+            setOrders(enrichedOrders);
+          }
+        } catch (e) {
+          console.error('Failed initial load:', e);
+        }
+      })();
     }
   }, [isAuthenticated]);
 
@@ -223,14 +247,15 @@ export default function Admin() {
     }
   }
 
-  async function loadOrders() {
+  async function loadOrders(itemsOverride?: any[]) {
     try {
       const response = await axios.get('/api/orders');
       if (response.data.ok) {
         // Enrich orders with item details
+        const itemsIndex = Array.isArray(itemsOverride) ? itemsOverride : (items.length ? items : response.data.items || []);
         const enrichedOrders = response.data.orders.map((order: Order) => {
           const enrichedItems = order.items.map(orderItem => {
-            const item = items.find(i => i.id === orderItem.id);
+            const item = itemsIndex.find((i: any) => i.id === orderItem.id);
             return {
               ...orderItem,
               title: item?.title || 'Unknown Item',
